@@ -1,0 +1,5 @@
+*.txt
+*.csv
+.*.swp
+.*.swo
+build/
