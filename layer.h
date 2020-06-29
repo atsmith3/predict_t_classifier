@@ -2,6 +2,8 @@
 #define __LAYER_H__
 
 #include "array.h"
+#include <ostream>
+#include <iostream>
 
 class Layer {
   Array2D W;
@@ -13,8 +15,10 @@ class Layer {
   Array2D db;
   Array2D dZ;
   Array2D A;
+  Array2D dA;
 
   double eta;
+  bool last_layer;
 
   /**
    * affine_forward
@@ -64,6 +68,18 @@ public:
   
   Array2D reverse(Array2D dA);
 
+  friend std::ostream& operator<<(std::ostream& os, const Layer& l) {
+#ifdef DEBUG
+    os << "--------------------------------------------------\n";
+    os << "W:\n" << l.W << "b:\n" << l.b << "dW:\n" << l.dW << "db:\n" << l.db <<
+          "dZ:\n" << l.dZ << "A:\n" << l.A << "dA:\n" << l.dA << "eta: " << l.eta << 
+          "; last_layer: " << l.last_layer << "\n";
+#else
+    os << "--------------------------------------------------\n";
+    os << "W:\n" << l.W << "b:\n" << l.b;
+#endif
+    return os;
+  }
 };
 
 #endif // __LAYER_H__

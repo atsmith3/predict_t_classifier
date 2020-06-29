@@ -2,6 +2,8 @@
 #define __ARRAY2D_H__
 
 #include <vector>
+#include <iostream>
+#include <ostream>
 
 /**
  * Class Array2D
@@ -13,6 +15,7 @@ public:
   size_t width;
   size_t height;
 
+  Array2D();
   Array2D(size_t height, size_t width, double init = 0.01);
 
   /**
@@ -41,7 +44,7 @@ public:
    * subtract two arrays for gradient descent
    * Return Array
    */
-  Array2D operator-(const Array2D& other) {
+  Array2D operator-(const Array2D& other);
 
   /**
    * apply
@@ -49,6 +52,23 @@ public:
    * @return Array2D with applied function
    */
   Array2D apply(double func(double)); 
+
+  /**
+   * operator<<
+   * Print out the array in a nice format
+   * @param ostream
+   * @param arr Array to print
+   * @return ostream
+   */
+  friend std::ostream& operator<<(std::ostream& out, const Array2D& arr) {
+    for(auto i : arr.data) {
+      for(auto j : i) {
+        out << j << " ";
+      }
+      out << "\n";
+    }
+    return out;
+  }
 };
 
 #endif // __ARRAY2D_H__

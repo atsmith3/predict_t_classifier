@@ -31,7 +31,13 @@ add_definitions(-DNTHREADS=1)
 add_executable(vs_classifier
                main.cc
                perceptron.h
-               perceptron.cc)
+               perceptron.cc
+               array.h
+               array.cc
+               layer.h
+               layer.cc
+               func.h
+               func.cc)
 
 target_link_libraries(vs_classifier
                       LINK_PUBLIC

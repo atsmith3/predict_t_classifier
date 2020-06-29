@@ -28,7 +28,7 @@ double loss(const Array2D F, const Array2D y) {
     }
     loss += F.data[i][(int)y.data[i][0]] - log(inner_sum);
   }
-  return = loss*(-1.0/F.height);
+  return loss*(-1.0/F.height);
 }
 
 /**
@@ -36,8 +36,9 @@ double loss(const Array2D F, const Array2D y) {
  * Computes the cross entropy
  */
 Array2D cross_entropy(const Array2D F, const Array2D y) {
-  Array2D df = F;
+  Array2D dF = F;
   double selector = 0.0;
+  double inner_sum = 0.0;
   /* Calculate dF */
   for(size_t i = 0; i < dF.height; i++) {
     for(size_t j = 0; j < dF.width; j++) {
@@ -46,7 +47,9 @@ Array2D cross_entropy(const Array2D F, const Array2D y) {
       for(size_t k = 0; k < dF.width; k++) {
         inner_sum += exp(F.data[i][k]);
       }
-      if(j == (int)y.data[i][0]) selector = 1.0;
+      if(j == (size_t)y.data[i][0]) {
+        selector = 1.0;
+      }
       dF.data[i][j] = (-1.0/dF.height)*(selector - (exp(F.data[i][j])/inner_sum));
     }
   }

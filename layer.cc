@@ -13,6 +13,7 @@
 Array2D
 Layer::affine_forward(Array2D A) {
   Z = (A*W) + b;
+  return Z;
 }
 
 /**
@@ -41,12 +42,13 @@ Layer::affine_reverse(Array2D dZ) {
 	dW = dZ*A;
 
   /* db calculation */
-  for(int j = 0; j < dZ.width; j++) {
+  for(size_t j = 0; j < dZ.width; j++) {
     db.data[j][0] = 0.0;
-    for(int i = 0; i < dZ.height; i++) {
+    for(size_t i = 0; i < dZ.height; i++) {
       db.data[j][0] += dZ.data[i][j];
     }
   } 
+  return dA;
 }
 
 /**
@@ -59,7 +61,7 @@ Array2D
 Layer::relu_reverse(Array2D dA) {
   for(size_t i = 0; i < Z.height; i++) {
     for(size_t j = 0; j < Z.width; j++) {
-      if(std::fmax(0.0, Z.data[i][j]) > 0.0) {
+      if(std::max(0.0, Z.data[i][j]) > 0.0) {
         dZ.data[i][j] = dA.data[i][j];
       }
       else {
@@ -77,13 +79,16 @@ Layer::relu_reverse(Array2D dA) {
  * @param derivative
  * @return Updated Array
  */
-Array2D gd(Array2D X, Array2D dX) {
-  return X - (eta*dX);
+Array2D Layer::gd(Array2D X, Array2D dX) {
+  return X - (dX*eta);
 }
 
-Layer::Layer(size_t height, size_t width, double eta, bool last_layer = false) {
+Layer::Layer(size_t height, size_t width, double eta, bool last_layer) {
   W = Array2D(height, width);
   b = Array2D(height, 1);
+
+  this->eta = eta;
+  this->last_layer = last_layer;
 }
 
 Array2D
