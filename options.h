@@ -11,21 +11,13 @@ namespace po = boost::program_options;
 class Options {
 public:
   // IO Options
-  std::string input_xml = "";
-  int print_level = 2;
-
-  // Optimization Options
-  bool opt_for_clk = true;
-
-  // Serialization Options
-  std::string serialization_file = "";
-  bool serialization_create = false;
-  bool serialization_restore = false;
-
+  std::string input_csv="";
+  std::string output_folder = "";
+  std::string log_folder = "";
   // Get Options from Command Line
   bool parse(int argc, char **argv);
 }; // class Options
 
-} // namespace mcpat
+
 
 #endif // __OPTIONS_H__
