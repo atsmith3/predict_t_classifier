@@ -11,11 +11,12 @@ namespace po = boost::program_options;
 class Options {
 public:
   // IO Options
-  std::string input_csv="";
+  std::string input_csv_train="";
+  std::string input_csv_test="";
   std::string output_folder = "";
   std::string log_folder = "";
   int number_events;
-  // Get Options from Command Line
+  // Get Options from Command Lineinpu
   bool parse(int argc, char **argv);
 }; // class Options
 
