@@ -14,6 +14,7 @@ public:
   std::string input_csv="";
   std::string output_folder = "";
   std::string log_folder = "";
+  int number_events;
   // Get Options from Command Line
   bool parse(int argc, char **argv);
 }; // class Options

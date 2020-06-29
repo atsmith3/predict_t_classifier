@@ -73,9 +73,8 @@ def parse_data(InputQueue,OutputQueue_training,OutputQueue_test):
 def gen_action_list():
   action_list = []
   if (num_actions>=2 and num_actions<=10):
-    for i in range(num_actions-1,0,-1):
-      action_list.append("Throttle_"+str(i))
-    action_list.append("No_Throttle")
+    for i in range(num_actions-1,-1,-1):
+      action_list.append(i)
   else:
     raise Exception('Number of actions should be between 2 and 10. The value: {}'.format(num_actions))
   return action_list

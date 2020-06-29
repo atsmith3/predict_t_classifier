@@ -16,6 +16,7 @@ bool Options::parse(int argc, char **argv) {
     ("input_csv,i", po::value<std::string>(&input_csv), "Input CSV file")
     ("output_folder,o", po::value<std::string>(&output_folder), "Output folder to store weights");
     ("log_folder,l", po::value<std::string>(&log_folder), "Log folder to store accuracy ");
+    ("number_events,l", po::value<int>(&number_events), "Integer number of events");
 
   ;
 
