@@ -1,6 +1,8 @@
 #ifndef __DNN_H__
 #define __DNN_H__
 
+#include "layer.h"
+
 #include <cstdint>
 #include <vector>
 #include <algorithm>
@@ -8,14 +10,9 @@
 
 
 class DNN3 {
-  /* Layer 1 */
-  Array2D W1, b1;
-
-  /* Layer 2 */
-  Array2D W2, b2;
-
-  /* Layer 3 */
-  Array2D W3, b3;
+  Layer input;
+  Layer hidden;
+  Layer output;
 
 public:
   /** 
@@ -26,10 +23,10 @@ public:
    * @param init_range range for random init
    * @param eta training rate
    */
-  DNN(size_t actions,
-             size_t features,
-             int init_range=10,
-             double eta=100.0);
+  DNN3(size_t actions,
+       size_t features,
+       int init_range=10,
+       double eta=100.0);
   
   /** 
    * eval
@@ -51,6 +48,10 @@ public:
 };
 
 class DNN4 {
+  Layer input;
+  Layer hidden1;
+  Layer hidden2;
+  Layer output;
 
 public:
   /** 
@@ -61,10 +62,10 @@ public:
    * @param init_range range for random init
    * @param eta training rate
    */
-  DNN(size_t actions,
-             size_t features,
-             int init_range=10,
-             double eta=100.0);
+  DNN4(size_t actions,
+       size_t features,
+       int init_range=10,
+       double eta=100.0);
   
   /** 
    * eval

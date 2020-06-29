@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import pandas as pd 
+import pandas as pd
 import numpy as np
 import argparse
 import os
@@ -26,7 +26,7 @@ num_events = args.events
 num_actions = args.actions
 num_threads = args.threads
 
-def parse_data(InputQueue):
+def parse_data(InputQueue,OutputQueue_training,OutputQueue_test):
 
   while not InputQueue.empty():
     file = InputQueue.get()
@@ -34,9 +34,9 @@ def parse_data(InputQueue):
       continue
 
     if not (os.path.getsize(file)>=num_events+3):
-      print("This file does not have any data OR this file does not have enough events as required (look at the events argument in the bash script)\n", file, "\n")
+      print("This file does not have any data OR this file does not have enough events as required (look at the events argument in the bash script)\n", file.split("/")[-1], "\n")
       continue
-    
+
     data = pd.read_csv(file,header = None)
     num_columns = len(data.columns)
     coloumn_names = list(range(0,num_columns))
@@ -63,19 +63,40 @@ def parse_data(InputQueue):
 
     train, test = train_test_split(data, test_size=0.1)
 
-    train.to_csv(output_path+"/"+(file.split("/")[-1]).split(".")[0]+"_train.csv", index=False, header = None)
-    test.to_csv(output_path+"/"+(file.split("/")[-1]).split(".")[0]+"_test.csv", index=False, header = None)
+    OutputQueue_test.put(test)
+    OutputQueue_training.put(train)
+
+    print("Done cleaning - ", file.split("/")[-1])
+
 
 
 def gen_action_list():
   action_list = []
   if (num_actions>=2 and num_actions<=10):
     for i in range(num_actions-1,0,-1):
-      action_list.append("Throttle_"+str(i))
-    action_list.append("No_Throttle")
+      action_list.append(str(i))
+    action_list.append("0")
   else:
     raise Exception('Number of actions should be between 2 and 10. The value: {}'.format(num_actions))
   return action_list
+
+
+
+
+def write_to_CSV(OutputQueue,test_data, training_data):
+  if not (training_data ^ test_data ):
+    raise Exception('Choose only one of the two')
+  if(test_data):
+    while not OutputQueue.empty():
+      data = OutputQueue.get()
+      data.to_csv(output_path+"/test_data.csv",mode="a", index=False, header = None)
+  if(training_data):
+    while not OutputQueue.empty():
+      data = OutputQueue.get()
+      data.to_csv(output_path+"/train_data.csv",mode="a", index=False, header = None)
+  return
+
+
 
 
 if __name__ == "__main__":
@@ -88,14 +109,27 @@ if __name__ == "__main__":
   action_list = gen_action_list()
 
   InputQueue = queue.Queue()
+  OutputQueue_training = queue.Queue()
+  OutputQueue_test = queue.Queue()
   threads = []
   for file in input_paths.split(","):
     InputQueue.put(file)
   for i in range(num_threads):
-      thr = threading.Thread(target=parse_data, args=[InputQueue])
+      thr = threading.Thread(target=parse_data, args=[InputQueue,OutputQueue_training,OutputQueue_test])
       thr.start()
       threads.append(thr)
     # Join Threads:
   for thr in threads:
     thr.join()
 
+  print("Writing to CSV")
+
+  thr_training = threading.Thread(target=write_to_CSV, args=[OutputQueue_training,False,True])
+  thr_test= threading.Thread(target=write_to_CSV, args=[OutputQueue_test,True,False])
+
+
+  thr_test.start()
+  thr_training.start()
+
+  thr_test.join()
+  thr_training.join()

@@ -5,15 +5,6 @@
 #include <cstdint>
 
 /**
- * ReLU
- * @param i Element of Array
- * @return relu(i)
- */
-double relu(double i) {
-  return std::max(0.0, i);
-}
-
-/**
  * affine_forward
  * compute Z = (A x W) + b
  * @param A Input Array
@@ -30,7 +21,7 @@ Layer::affine_forward(Array2D A) {
  * @param Z Input array
  * @return ReLU(Z)
  */
-Array2D 
+Array2D
 Layer::relu_forward(Array2D Z) {
   return Z.apply(relu);
 }
@@ -43,7 +34,19 @@ Layer::relu_forward(Array2D Z) {
  */
 Array2D
 Layer::affine_reverse(Array2D dZ) {
+	/* dA Calculation */
+	dA = dZ*dW;
 
+  /* dW calculation */
+	dW = dZ*A;
+
+  /* db calculation */
+  for(int j = 0; j < dZ.width; j++) {
+    db.data[j][0] = 0.0;
+    for(int i = 0; i < dZ.height; i++) {
+      db.data[j][0] += dZ.data[i][j];
+    }
+  } 
 }
 
 /**
@@ -52,9 +55,19 @@ Layer::affine_reverse(Array2D dZ) {
  * @param dA output from previous layer
  * @return dZ
  */
-Array2D 
+Array2D
 Layer::relu_reverse(Array2D dA) {
-
+  for(size_t i = 0; i < Z.height; i++) {
+    for(size_t j = 0; j < Z.width; j++) {
+      if(std::fmax(0.0, Z.data[i][j]) > 0.0) {
+        dZ.data[i][j] = dA.data[i][j];
+      }
+      else {
+        dZ.data[i][j] = 0.0;
+      }
+    }
+  }
+  return dZ;
 }
 
 /**

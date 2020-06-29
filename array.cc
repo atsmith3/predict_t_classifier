@@ -4,8 +4,8 @@
 #include <cstdint>
 
 Array2D::Array2D(size_t height, size_t width, double init) {
-  w = width;
-  h = height;
+  this->width = width;
+  this->height = height;
   data.resize(h);
   for(size_t y = 0; y < data.size(); y++) {
     data[y].resize(w);

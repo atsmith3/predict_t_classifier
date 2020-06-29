@@ -10,8 +10,8 @@
 class Array2D {
 public:
   std::vector<std::vector<double>> data;
-  size_t w;
-  size_t h;
+  size_t width;
+  size_t height;
 
   Array2D(size_t height, size_t width, double init = 0.01);
 

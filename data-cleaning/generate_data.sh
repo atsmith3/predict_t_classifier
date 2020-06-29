@@ -35,17 +35,17 @@ print_info "#                                                       #"
 print_info "#########################################################"
 
 #State these before running the script
-export NUM_EVENTS=10
-export NUM_ACTIONS=5
+export NUM_EVENTS=16
+export NUM_ACTIONS=2
 
-export ROOT_DIR="$HOME/predict_t_classifier/data-cleaning"
-export RAW_DATA_DIR="$ROOT_DIR/raw_data"
+export ROOT_DIR="$PWD"
+export RAW_DATA_DIR="/scratch/predict-T/training_data/training_data_1"
 export CLEAN_DATA_DIR="$ROOT_DIR/cleaned_data_${NUM_EVENTS}EVENTS_${NUM_ACTIONS}ACTIONS"
 
 
 print_info "export ROOT_DIR $ROOT_DIR"
 print_info "export RAW_DATA_DIR $RAW_DATA_DIR"
-print_info "export CLEAN_DATA_DIR $CLEAN_DATA_DIR -n"
+print_info "export CLEAN_DATA_DIR $CLEAN_DATA_DIR"
 
 export FILE_NAMES=""
 for files in "$RAW_DATA_DIR"/*

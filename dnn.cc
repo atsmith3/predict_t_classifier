@@ -4,12 +4,12 @@
 #include <algorithm>
 #include <cmath>
 
-DNN::DNN(size_t actions, size_t features, int init_range, double eta) {
+DNN3::DNN3(size_t actions, size_t features, int init_range, double eta) {
   this->actions.resize(actions, Perceptron(features, init_range, eta));
 }
 
 int
-DNN::eval(uint64_t pc, std::vector<uint8_t> signature) {
+DNN3::eval(uint64_t pc, std::vector<uint8_t> signature) {
   std::vector<double> confidence;
 
   for(size_t i = 0; i < actions.size(); i++) {
@@ -21,11 +21,10 @@ DNN::eval(uint64_t pc, std::vector<uint8_t> signature) {
 }
 
 void
-DNN::train(uint64_t pc, std::vector<uint8_t> signature, int action) {
+DNN3::train(uint64_t pc, std::vector<uint8_t> signature, int action) {
   int predicted = eval(pc, signature);
   if(predicted != action) {
     actions[predicted].train(pc, signature, false);
   }
   actions[action].train(pc, signature, true);
 }
-

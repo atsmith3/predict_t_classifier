@@ -12,7 +12,7 @@ class Layer {
   Array2D dW;
   Array2D db;
   Array2D dZ;
-  Array2D dA;
+  Array2D A;
 
   double eta;
 
