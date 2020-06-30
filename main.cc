@@ -62,7 +62,7 @@ void train(Classifier &a, std::string file_, int num_events_) {
   return;
 }
 
-std::pair<int, int> test(Classifier &a, std::string file_, int num_events_) {
+double test(Classifier &a, std::string file_, int num_events_) {
   std::ifstream myFile(file_);
   if (!myFile.is_open())
     throw std::runtime_error("Could not open file");
@@ -103,14 +103,14 @@ std::pair<int, int> test(Classifier &a, std::string file_, int num_events_) {
     }
     signatures.push_back(current_signature);
   }
-  int correct_prediction = 0;
-  int total_test = pc.size();
+  double correct_prediction = 0;
+  double total_test = pc.size();
   for (size_t i = 0; i < pc.size(); i++) {
     if (action[i] == a.eval(pc[i], signatures[i]))
       correct_prediction++;
   }
 
-  return std::pair<int, int>(correct_prediction, total_test);
+  return correct_prediction/total_test;
 }
 
 int main(int argc, char **argv) {
@@ -123,13 +123,13 @@ int main(int argc, char **argv) {
   // std::cout << std::setprecision(0);
   // std::cout << std::fixed;
 
-  DNN classifier = DNN(1 + 4, 2, 8, 1, 0.1, 10.0);
+  //DNN classifier = DNN(1 + 4, 2, 8, 1, 0.1, 10.0);
 
   /** Train */
-  train_dnn(classifier, "train.csv", 10000, 128);
+  //train_dnn(classifier, "train.csv", 10000, 128);
 
   /** Test */
-  test_dnn(classifier, "test.csv");
+  //test_dnn(classifier, "test.csv");
 
   /** Classifier(actions, signature_len, init_val, eta */
   Classifier a = Classifier(2, opt.number_events, 10, 10.0);
@@ -138,9 +138,7 @@ int main(int argc, char **argv) {
   train(a, opt.input_csv_train, opt.number_events);
 
   /** Test */
-  //std::pair<int, int> test_data = \
-  //    test(a, opt.input_csv_test, opt.number_events);
-
+  std::cout<<test(a, opt.input_csv_test, opt.number_events)<<std::endl;
   /** Serialize */
   return 0;
 }
