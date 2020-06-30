@@ -3,9 +3,9 @@
 
 #include "layer.h"
 
+#include <algorithm>
 #include <cstdint>
 #include <vector>
-#include <algorithm>
 
 class DNN {
   Layer input;
@@ -13,7 +13,7 @@ class DNN {
   Layer output;
 
 public:
-  /** 
+  /**
    * Constructor
    * Create a 3 Layer DNN, 1 Input, 1 Hidden, 1 Output Layer
    * @param features
@@ -24,13 +24,13 @@ public:
    * @param init
    */
   DNN(size_t features,
-       size_t actions,
-       size_t hidden_dim,
-       size_t hidden_layers,
-       double eta = 0.1,
-       double init = 1.0);
-  
-  /** 
+      size_t actions,
+      size_t hidden_dim,
+      size_t hidden_layers,
+      double eta = 0.1,
+      double init = 1.0);
+
+  /**
    * eval
    * Evaluate the dnn
    * @param input
@@ -38,10 +38,10 @@ public:
    */
   int eval(Array2D input);
 
-  /** 
+  /**
    * train
    * Evaluate the classifier and train with Gradient
-   * Descent 
+   * Descent
    * @param batch
    * @param actions
    * @return loss
@@ -55,9 +55,9 @@ public:
    * @param dnn DNN3 to print
    * @return output stream
    */
-  friend std::ostream& operator<<(std::ostream& os, const DNN& dnn) {
+  friend std::ostream &operator<<(std::ostream &os, const DNN &dnn) {
     os << dnn.input;
-    for(size_t i = 0; i < dnn.hidden.size(); i++) {
+    for (size_t i = 0; i < dnn.hidden.size(); i++) {
       os << dnn.hidden[i];
     }
     os << dnn.output;

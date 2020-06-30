@@ -2,8 +2,9 @@
 #define __LAYER_H__
 
 #include "array.h"
-#include <ostream>
+
 #include <iostream>
+#include <ostream>
 
 class Layer {
   Array2D W;
@@ -62,7 +63,7 @@ class Layer {
   Array2D gd(Array2D X, Array2D dX);
 
 public:
-  Layer() {};
+  Layer(){};
 
   Layer(size_t height,
         size_t width,
@@ -71,15 +72,20 @@ public:
         bool last_layer = false);
 
   Array2D forward(Array2D A);
-  
+
   Array2D reverse(Array2D dA);
 
-  friend std::ostream& operator<<(std::ostream& os, const Layer& l) {
+  friend std::ostream &operator<<(std::ostream &os, const Layer &l) {
 #ifdef DEBUG
     os << "--------------------------------------------------\n";
-    os << "W:\n" << l.W << "b:\n" << l.b << "dW:\n" << l.dW << "db:\n" << l.db <<
-          "dZ:\n" << l.dZ << "A:\n" << l.A << "dA:\n" << l.dA << "eta: " << l.eta << 
-          "; last_layer: " << l.last_layer << "\n";
+    os << "W:\n"
+       << l.W << "b:\n"
+       << l.b << "dW:\n"
+       << l.dW << "db:\n"
+       << l.db << "dZ:\n"
+       << l.dZ << "A:\n"
+       << l.A << "dA:\n"
+       << l.dA << "eta: " << l.eta << "; last_layer: " << l.last_layer << "\n";
 #else
     os << "--------------------------------------------------\n";
     os << "W:\n" << l.W << "b:\n" << l.b;

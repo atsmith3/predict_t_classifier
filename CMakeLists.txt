@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
+set(CMAKE_CXX_FLAGS "-Wall -Wextra -Wno-unused-value -Werror")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -ggdb -O0 -DDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(CMAKE_CXX_FLAGS_PROFILE "-O3 -pg -g")
@@ -41,7 +41,9 @@ add_executable(vs_classifier
                dnn.h
                dnn.cc
                utility.h
-               utility.cc)
+               utility.cc
+               options.h
+               options.cc)
 
 target_link_libraries(vs_classifier
                       LINK_PUBLIC
