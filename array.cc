@@ -86,3 +86,19 @@ Array2D Array2D::apply(double func(double)) {
   }
   return a;
 }
+
+Array2D Array2D::get_subset(size_t y, size_t x, size_t y_o, size_t x_o) {
+  assert(y + y_o <= this->height);
+  assert(x + x_o <= this->width);
+  Array2D ret(y, x, 0.0);
+  for (size_t i = 0; i < y; i++) {
+    for (size_t j = 0; j < x; j++) {
+      ret.data[i][j] = this->data[i + y_o][j + x_o];
+    }
+  }
+  return ret;
+}
+
+void Array2D::shuffle() {
+  std::random_shuffle(this->data.begin(), this->data.end());
+}

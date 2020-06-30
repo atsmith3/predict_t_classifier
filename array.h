@@ -54,6 +54,23 @@ public:
   Array2D apply(double func(double));
 
   /**
+   * get_subset
+   * return an array of dimensions y, x starting at offset y_o, x_o
+   * @param y height of new array
+   * @param x width of new array
+   * @param y_o y offset of new array
+   * @param x_o x offset of new array
+   * @return array subset
+   */
+  Array2D get_subset(size_t y, size_t x, size_t y_o, size_t x_o);
+
+  /**
+   * shuffle
+   * randomize the array, apply locally
+   */
+  void shuffle();
+
+  /**
    * operator<<
    * Print out the array in a nice format
    * @param ostream

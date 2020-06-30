@@ -221,5 +221,41 @@ void dnn_unit_test() {
   std::cout << A << "\n";
   std::cout << standardize(A) << "\n";
   std::cout << "\n\n";
+
+  /*
+   * Test get_subset
+   */
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test 16: get_subset 8x8 -> 8x7\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(8, 8, 10.0);
+  B = A.get_subset(8, 7, 0, 1);
+  std::cout << A << "\n";
+  std::cout << B << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test get_subset
+   */
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test 17: get_subset 8x8 -> 8x1\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(8, 8, 10.0);
+  B = A.get_subset(8, 1, 0, 0);
+  std::cout << A << "\n";
+  std::cout << B << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test shuffle
+   */
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test 18: shuffle 8x4\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(8, 4, 10.0);
+  std::cout << A << "\n";
+  A.shuffle();
+  std::cout << A << "\n";
+  std::cout << "\n\n";
 #endif
 }
