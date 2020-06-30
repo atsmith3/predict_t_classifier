@@ -1,4 +1,5 @@
 #include "layer.h"
+
 #include "func.h"
 
 #include <algorithm>
@@ -10,9 +11,8 @@
  * @param A Input Array
  * @return Z
  */
-Array2D
-Layer::affine_forward(Array2D A) {
-  Z = (A*W) + b;
+Array2D Layer::affine_forward(Array2D A) {
+  Z = (A * W) + b;
   return Z;
 }
 
@@ -22,10 +22,7 @@ Layer::affine_forward(Array2D A) {
  * @param Z Input array
  * @return ReLU(Z)
  */
-Array2D
-Layer::relu_forward(Array2D Z) {
-  return Z.apply(relu);
-}
+Array2D Layer::relu_forward(Array2D Z) { return Z.apply(relu); }
 
 /**
  * affine_reverse
@@ -33,21 +30,20 @@ Layer::relu_forward(Array2D Z) {
  * @param dZ output from relu_reverse
  * @return dA
  */
-Array2D
-Layer::affine_reverse(Array2D dZ) {
-	/* dA Calculation */
-	dA = dZ*dW;
+Array2D Layer::affine_reverse(Array2D dZ) {
+  /* dA Calculation */
+  dA = dZ * dW;
 
   /* dW calculation */
-	dW = dZ*A;
+  dW = dZ * A;
 
   /* db calculation */
-  for(size_t j = 0; j < dZ.width; j++) {
+  for (size_t j = 0; j < dZ.width; j++) {
     db.data[j][0] = 0.0;
-    for(size_t i = 0; i < dZ.height; i++) {
+    for (size_t i = 0; i < dZ.height; i++) {
       db.data[j][0] += dZ.data[i][j];
     }
-  } 
+  }
   return dA;
 }
 
@@ -57,14 +53,12 @@ Layer::affine_reverse(Array2D dZ) {
  * @param dA output from previous layer
  * @return dZ
  */
-Array2D
-Layer::relu_reverse(Array2D dA) {
-  for(size_t i = 0; i < Z.height; i++) {
-    for(size_t j = 0; j < Z.width; j++) {
-      if(std::max(0.0, Z.data[i][j]) > 0.0) {
+Array2D Layer::relu_reverse(Array2D dA) {
+  for (size_t i = 0; i < Z.height; i++) {
+    for (size_t j = 0; j < Z.width; j++) {
+      if (std::max(0.0, Z.data[i][j]) > 0.0) {
         dZ.data[i][j] = dA.data[i][j];
-      }
-      else {
+      } else {
         dZ.data[i][j] = 0.0;
       }
     }
@@ -79,23 +73,17 @@ Layer::relu_reverse(Array2D dA) {
  * @param derivative
  * @return Updated Array
  */
-Array2D Layer::gd(Array2D X, Array2D dX) {
-  return X - (dX*eta);
-}
+Array2D Layer::gd(Array2D X, Array2D dX) { return X - (dX * eta); }
 
-Layer::Layer(size_t height,
-             size_t width,
-             double eta,
-             double init,
-             bool last_layer) {
+Layer::Layer(
+    size_t height, size_t width, double eta, double init, bool last_layer) {
   W = Array2D(height, width, init);
   b = Array2D(height, 1, init);
   this->eta = eta;
   this->last_layer = last_layer;
 }
 
-Array2D
-Layer::forward(Array2D A) {
+Array2D Layer::forward(Array2D A) {
   // Cache
   dA = A;
   dW = W;
@@ -108,17 +96,16 @@ Layer::forward(Array2D A) {
   dZ = Z;
 
   // ReLU Forward
-  if(!last_layer) {
+  if (!last_layer) {
     return relu_forward(Z);
   }
   return Z;
 }
 
-Array2D
-Layer::reverse(Array2D dA) {
+Array2D Layer::reverse(Array2D dA) {
   dZ = dA;
   // ReLU Reverse
-  if(!last_layer) {
+  if (!last_layer) {
     dZ = relu_reverse(dA);
   }
 

@@ -1,9 +1,10 @@
 #include "dnn.h"
+
 #include "func.h"
 
-#include <random>
 #include <algorithm>
 #include <cmath>
+#include <random>
 
 /**
  * Constructor
@@ -16,49 +17,47 @@
  * @param init
  */
 DNN::DNN(size_t features,
-           size_t actions,
-           size_t hidden_dim,
-           size_t hidden_layers,
-           double eta,
-           double init) {
+         size_t actions,
+         size_t hidden_dim,
+         size_t hidden_layers,
+         double eta,
+         double init) {
   input = Layer(features, hidden_dim, eta, init);
-  for(size_t i = 0; i < hidden_layers; i++) {
+  for (size_t i = 0; i < hidden_layers; i++) {
     hidden.push_back(Layer(hidden_dim, hidden_dim, eta, init));
   }
   output = Layer(hidden_dim, actions, eta, init, true);
 }
 
-/** 
+/**
  * eval
  * Evaluate the dnn
  * @param input
  * @return Predicted Action
  */
-int
-DNN::eval(Array2D input) {
+int DNN::eval(Array2D input) {
   Array2D A, F;
   A = this->input.forward(input);
-  for(size_t i = 0; i < hidden.size(); i++) {
+  for (size_t i = 0; i < hidden.size(); i++) {
     A = hidden[i].forward(A);
   }
   F = this->output.forward(A);
   return argmax(F);
 }
 
-/** 
+/**
  * train
  * Evaluate the classifier and train with Gradient
- * Descent 
+ * Descent
  * @param batch
  * @param action
  * @return loss
  */
-double
-DNN::train(Array2D batch, Array2D actions) {
+double DNN::train(Array2D batch, Array2D actions) {
   double l = 0.0;
   Array2D A, F, dF, dA;
   A = input.forward(batch);
-  for(size_t i = 0; i < hidden.size(); i++) {
+  for (size_t i = 0; i < hidden.size(); i++) {
     A = hidden[i].forward(A);
   }
   F = output.forward(A);
@@ -67,7 +66,7 @@ DNN::train(Array2D batch, Array2D actions) {
   dF = cross_entropy(F, actions);
 
   dA = output.reverse(dF);
-  for(size_t i = hidden.size()-1; i >= 0; i--) {
+  for (size_t i = hidden.size() - 1; i >= 0; i--) {
     dA = hidden[i].reverse(dA);
   }
   input.reverse(dA);
