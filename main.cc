@@ -113,29 +113,32 @@ std::pair<int, int> test(Classifier &a, std::string file_, int num_events_) {
   return std::pair<int, int>(correct_prediction, total_test);
 }
 
-int main(int argc, char **argv) {
+// int main(int argc, char **argv) {
+int main() {
 
-  Options opt;
-  if (!opt.parse(argc, argv)) {
-    return 1;
-  }
+  // Options opt;
+  // if (!opt.parse(argc, argv)) {
+  //  return 1;
+  //}
+
+  dnn_unit_test();
 
   // std::cout << std::setprecision(0);
   // std::cout << std::fixed;
 
-  DNN classifier = DNN(1 + 4, 2, 8, 1, 0.1, 10.0);
+  // DNN classifier = DNN(1 + 4, 2, 8, 1, 0.1, 10.0);
 
-  /** Train */
-  train_dnn(classifier, "train.csv", 10000, 128);
+  ///** Train */
+  // train_dnn(classifier, "train.csv", 10000, 128);
 
-  /** Test */
-  test_dnn(classifier, "test.csv");
+  ///** Test */
+  // test_dnn(classifier, "test.csv");
 
-  /** Classifier(actions, signature_len, init_val, eta */
-  Classifier a = Classifier(2, opt.number_events, 10, 10.0);
+  ///** Classifier(actions, signature_len, init_val, eta */
+  // Classifier a = Classifier(2, opt.number_events, 10, 10.0);
 
-  /** Train */
-  train(a, opt.input_csv_train, opt.number_events);
+  ///** Train */
+  // train(a, opt.input_csv_train, opt.number_events);
 
   /** Test */
   //std::pair<int, int> test_data = \

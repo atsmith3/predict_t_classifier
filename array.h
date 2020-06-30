@@ -16,7 +16,7 @@ public:
   size_t height;
 
   Array2D();
-  Array2D(size_t height, size_t width, double init = 0.01);
+  Array2D(size_t height, size_t width, double init = 0.0);
 
   /**
    * operator+(const Array& other)
@@ -61,6 +61,7 @@ public:
    * @return ostream
    */
   friend std::ostream &operator<<(std::ostream &out, const Array2D &arr) {
+    out << "Shape: [" << arr.height << "," << arr.width << "]\n";
     for (auto i : arr.data) {
       for (auto j : i) {
         out << j << " ";

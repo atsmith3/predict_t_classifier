@@ -21,10 +21,16 @@ void train_dnn(DNN &dnn,
 
 /**
  * train_dnn
- * Minibatch Train the DNN
+ * Test the DNN
  * @param dnn The network to test
  * @param test_data The path to the test dataset
  */
 void test_dnn(DNN &dnn, std::string train_data);
+
+/**
+ * dnn_unit_tests
+ * Unit test some of the functionality of the Array2D and Layer Classes
+ */
+void dnn_unit_test();
 
 #endif // __UTILITY_H__

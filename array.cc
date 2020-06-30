@@ -53,12 +53,12 @@ Array2D Array2D::operator*(const double &other) {
 }
 
 Array2D Array2D::operator+(const Array2D &other) {
-  assert(this->height == other.height);
+  assert(this->width == other.height);
   Array2D a = *this;
 
   for (size_t i = 0; i < this->height; i++) {
     for (size_t j = 0; j < this->width; j++) {
-      a.data[i][j] += other.data[0][j];
+      a.data[i][j] += other.data[j][0];
     }
   }
   return a;
@@ -79,10 +79,9 @@ Array2D Array2D::operator-(const Array2D &other) {
 
 Array2D Array2D::apply(double func(double)) {
   Array2D a = *this;
-
   for (size_t i = 0; i < this->height; i++) {
     for (size_t j = 0; j < this->width; j++) {
-      a.data[i][j] += func(this->data[i][j]);
+      a.data[i][j] = func(this->data[i][j]);
     }
   }
   return a;
