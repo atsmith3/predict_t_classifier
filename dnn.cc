@@ -1,30 +1,75 @@
-#include "perceptron.h"
+#include "dnn.h"
+#include "func.h"
 
 #include <random>
 #include <algorithm>
 #include <cmath>
 
-DNN3::DNN3(size_t actions, size_t features, int init_range, double eta) {
-  this->actions.resize(actions, Perceptron(features, init_range, eta));
+/**
+ * Constructor
+ * Create a 3 Layer DNN
+ * @param features
+ * @param actions
+ * @param hidden_dimension
+ * @param hidden_layers
+ * @param eta
+ * @param init
+ */
+DNN::DNN(size_t features,
+           size_t actions,
+           size_t hidden_dim,
+           size_t hidden_layers,
+           double eta,
+           double init) {
+  input = Layer(features, hidden_dim, eta, init);
+  for(size_t i = 0; i < hidden_layers; i++) {
+    hidden.push_back(Layer(hidden_dim, hidden_dim, eta, init));
+  }
+  output = Layer(hidden_dim, actions, eta, init, true);
 }
 
+/** 
+ * eval
+ * Evaluate the dnn
+ * @param input
+ * @return Predicted Action
+ */
 int
-DNN3::eval(uint64_t pc, std::vector<uint8_t> signature) {
-  std::vector<double> confidence;
-
-  for(size_t i = 0; i < actions.size(); i++) {
-    confidence.push_back(actions[i].eval(pc, signature));
+DNN::eval(Array2D input) {
+  Array2D A, F;
+  A = this->input.forward(input);
+  for(size_t i = 0; i < hidden.size(); i++) {
+    A = hidden[i].forward(A);
   }
-
-  auto result = std::max_element(confidence.begin(), confidence.end());
-  return std::distance(confidence.begin(), result);
+  F = this->output.forward(A);
+  return argmax(F);
 }
 
-void
-DNN3::train(uint64_t pc, std::vector<uint8_t> signature, int action) {
-  int predicted = eval(pc, signature);
-  if(predicted != action) {
-    actions[predicted].train(pc, signature, false);
+/** 
+ * train
+ * Evaluate the classifier and train with Gradient
+ * Descent 
+ * @param batch
+ * @param action
+ * @return loss
+ */
+double
+DNN::train(Array2D batch, Array2D actions) {
+  double l = 0.0;
+  Array2D A, F, dF, dA;
+  A = input.forward(batch);
+  for(size_t i = 0; i < hidden.size(); i++) {
+    A = hidden[i].forward(A);
   }
-  actions[action].train(pc, signature, true);
+  F = output.forward(A);
+
+  l = loss(F, actions);
+  dF = cross_entropy(F, actions);
+
+  dA = output.reverse(dF);
+  for(size_t i = hidden.size()-1; i >= 0; i--) {
+    dA = hidden[i].reverse(dA);
+  }
+  input.reverse(dA);
+  return l;
 }

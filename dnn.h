@@ -7,83 +7,62 @@
 #include <vector>
 #include <algorithm>
 
-
-
-class DNN3 {
+class DNN {
   Layer input;
-  Layer hidden;
+  std::vector<Layer> hidden;
   Layer output;
 
 public:
   /** 
    * Constructor
-   * Create a signature classifier
-   * @param actions The number of actions to take
-   * @param features The number of input features
-   * @param init_range range for random init
-   * @param eta training rate
+   * Create a 3 Layer DNN, 1 Input, 1 Hidden, 1 Output Layer
+   * @param features
+   * @param actions
+   * @param hidden_dimension
+   * @param hidden_layers
+   * @param eta
+   * @param init
    */
-  DNN3(size_t actions,
-       size_t features,
-       int init_range=10,
-       double eta=100.0);
+  DNN(size_t features,
+       size_t actions,
+       size_t hidden_dim,
+       size_t hidden_layers,
+       double eta = 0.1,
+       double init = 1.0);
   
   /** 
    * eval
-   * Evaluate the classifier
-   * @param pc The input anchor PC
-   * @param signature The input event signature
-   * @return confidence
+   * Evaluate the dnn
+   * @param input
+   * @return Predicted Action
    */
-  int eval(uint64_t pc, std::vector<uint8_t> signature);
+  int eval(Array2D input);
 
   /** 
    * train
-   * Evaluate the classifier and train
-   * @param pc The input anchor PC
-   * @param signature The input event signature
-   * @param action Correct action to take 
+   * Evaluate the classifier and train with Gradient
+   * Descent 
+   * @param batch
+   * @param actions
+   * @return loss
    */
-  void train(uint64_t pc, std::vector<uint8_t> signature, int action);
-};
+  double train(Array2D batch, Array2D actions);
 
-class DNN4 {
-  Layer input;
-  Layer hidden1;
-  Layer hidden2;
-  Layer output;
-
-public:
-  /** 
-   * Constructor
-   * Create a signature classifier
-   * @param actions The number of actions to take
-   * @param features The number of input features
-   * @param init_range range for random init
-   * @param eta training rate
+  /**
+   * operator<<
+   * print out the contents of the DNN for Debugging
+   * @param os Output stream to write to
+   * @param dnn DNN3 to print
+   * @return output stream
    */
-  DNN4(size_t actions,
-       size_t features,
-       int init_range=10,
-       double eta=100.0);
-  
-  /** 
-   * eval
-   * Evaluate the classifier
-   * @param pc The input anchor PC
-   * @param signature The input event signature
-   * @return confidence
-   */
-  int eval(uint64_t pc, std::vector<uint8_t> signature);
-
-  /** 
-   * train
-   * Evaluate the classifier and train
-   * @param pc The input anchor PC
-   * @param signature The input event signature
-   * @param action Correct action to take 
-   */
-  void train(uint64_t pc, std::vector<uint8_t> signature, int action);
+  friend std::ostream& operator<<(std::ostream& os, const DNN& dnn) {
+    os << dnn.input;
+    for(size_t i = 0; i < dnn.hidden.size(); i++) {
+      os << dnn.hidden[i];
+    }
+    os << dnn.output;
+    return os;
+  }
 };
 
 #endif // __DNN_H__

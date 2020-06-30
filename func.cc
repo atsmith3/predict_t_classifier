@@ -4,6 +4,7 @@
 #include <cmath>
 #include <random>
 
+
 /**
  * ReLU
  * @param i Element of Array
@@ -13,9 +14,13 @@ double relu(double i) {
   return std::max(0.0, i);
 }
 
+
 /**
  * loss
  * Compute the Loss
+ * @param F Result from the output layer
+ * @param y Labeled correct action
+ * @return loss
  */
 double loss(const Array2D F, const Array2D y) {
   /* Caclulate Loss */
@@ -34,6 +39,9 @@ double loss(const Array2D F, const Array2D y) {
 /**
  * cross_entropy
  * Computes the cross entropy
+ * @param F Result from the output layer
+ * @param y Labeled correct action
+ * @return derivative
  */
 Array2D cross_entropy(const Array2D F, const Array2D y) {
   Array2D dF = F;
@@ -54,4 +62,16 @@ Array2D cross_entropy(const Array2D F, const Array2D y) {
     }
   }
   return dF;
+}
+
+
+/**
+ * argmax
+ * returns the index of the maximal element of the array
+ * @param F Result from the output layer
+ * @return index
+ */
+int argmax(const Array2D F) {
+  auto result = std::max_element(F.data[0].begin(), F.data[0].end());
+  return std::distance(F.data[0].begin(), result);
 }

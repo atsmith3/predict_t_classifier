@@ -62,7 +62,13 @@ class Layer {
   Array2D gd(Array2D X, Array2D dX);
 
 public:
-  Layer(size_t height, size_t width, double eta, bool last_layer = false);
+  Layer() {};
+
+  Layer(size_t height,
+        size_t width,
+        double eta,
+        double init,
+        bool last_layer = false);
 
   Array2D forward(Array2D A);
   

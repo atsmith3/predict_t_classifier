@@ -83,10 +83,13 @@ Array2D Layer::gd(Array2D X, Array2D dX) {
   return X - (dX*eta);
 }
 
-Layer::Layer(size_t height, size_t width, double eta, bool last_layer) {
-  W = Array2D(height, width);
-  b = Array2D(height, 1);
-
+Layer::Layer(size_t height,
+             size_t width,
+             double eta,
+             double init,
+             bool last_layer) {
+  W = Array2D(height, width, init);
+  b = Array2D(height, 1, init);
   this->eta = eta;
   this->last_layer = last_layer;
 }

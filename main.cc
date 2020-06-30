@@ -1,22 +1,26 @@
-#include "perceptron.h"
+#include "dnn.h"
+#include "utility.h"
 #include <iostream>
 #include <chrono>
 #include <thread>
 #include <unistd.h>
+#include <iomanip>
+
+
 
 //int main(int argc, char** argv) {
 int main() {
-  /** Classifier(actions, signature_len, init_val, eta */
-  Classifier a = Classifier(2, 256, 10, 10.0);
+  //std::cout << std::setprecision(0);
+  //std::cout << std::fixed;
+
+  DNN classifier = DNN(1+4, 2, 8, 1, 0.1, 10.0);
 
   /** Train */
-  // TODO: Write Train Utility
+  train_dnn(classifier, "train.csv", 10000, 128);
 
   /** Test */
-  // TODO: Write Test Utility
+  test_dnn(classifier, "test.csv");
 
   /** Serialize */
-  // TODO: Write Custom Serialization Utility
-
   return 1;
 }

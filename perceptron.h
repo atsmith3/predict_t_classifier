@@ -56,14 +56,14 @@ public:
   Classifier(size_t actions,
              size_t features,
              int init_range=10,
-             double eta=100.0);
+             double eta=1.5);
   
   /** 
    * eval
    * Evaluate the classifier
    * @param pc The input anchor PC
    * @param signature The input event signature
-   * @return confidence
+   * @return action taken
    */
   int eval(uint64_t pc, std::vector<uint8_t> signature);
 
