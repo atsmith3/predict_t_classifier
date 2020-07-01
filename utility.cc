@@ -133,8 +133,10 @@ void train_dnn(DNN &dnn,
     input =
         train_data.get_subset(train_data.height, train_data.width - 1, 0, 1);
     label = train_data.get_subset(train_data.height, 1, 0, 0);
-    correct.resize(dnn.get_actions(), 0.0);
-    total.resize(dnn.get_actions(), 0.0);
+    for (size_t j = 0; j < correct.size(); j++) {
+      correct[j] = 0.0;
+      total[j] = 0.0;
+    }
     t_correct = 0.0;
     t_total = 0.0;
     loss = 0.0;
@@ -152,7 +154,8 @@ void train_dnn(DNN &dnn,
       total[int_label] += 1.0;
       t_total += 1.0;
     }
-    std::cout << i << "," << loss << "," << t_correct / t_total;
+    std::cout << i << "," << loss << "," << t_correct << "," << t_total << ","
+              << t_correct / t_total;
     for (size_t k = 0; k < correct.size(); k++) {
       std::cout << "," << correct[k] / total[k];
     }
@@ -192,7 +195,8 @@ void test_dnn(DNN &dnn, Array2D &test_data) {
     total[int_label] += 1.0;
     t_total += 1.0;
   }
-  std::cout << "Test DNN Accuracy: " << t_correct / t_total;
+  std::cout << "Test DNN " << t_correct << "," << t_total << ","
+            << t_correct / t_total;
   for (size_t k = 0; k < correct.size(); k++) {
     std::cout << "," << correct[k] / total[k];
   }
@@ -223,8 +227,10 @@ void train_classifier(Classifier &a, Array2D &train_data, size_t epochs) {
     label = train_data.get_subset(train_data.height, 1, 0, 0);
     t_correct = 0.0;
     t_total = 0.0;
-    correct.resize(a.get_actions(), 0.0);
-    total.resize(a.get_actions(), 0.0);
+    for (size_t j = 0; j < correct.size(); j++) {
+      correct[j] = 0.0;
+      total[j] = 0.0;
+    }
     for (size_t j = 0; j < train_data.height; j++) {
       int_label = (int)label.get_subset(1, label.width, j, 0).data[0][0];
       if (a.train(input.get_subset(1, input.width, j, 0),
@@ -235,13 +241,15 @@ void train_classifier(Classifier &a, Array2D &train_data, size_t epochs) {
       total[int_label] += 1.0;
       t_total += 1.0;
     }
-    std::cout << i << "," << t_correct / t_total;
+    std::cout << i << "," << t_correct << "," << t_total << ","
+              << t_correct / t_total;
     for (size_t k = 0; k < correct.size(); k++) {
       std::cout << "," << correct[k] / total[k];
     }
     std::cout << "\n";
   }
-  std::cout << "Train Classifier " << t_correct / t_total;
+  std::cout << "Train Classifier " << t_correct << "," << t_total << ","
+            << t_correct / t_total;
   for (size_t k = 0; k < correct.size(); k++) {
     std::cout << "," << correct[k] / total[k];
   }
@@ -276,7 +284,8 @@ void test_classifier(Classifier &a, Array2D &test_data) {
     total[int_label] += 1.0;
     t_total += 1.0;
   }
-  std::cout << "Test Classifier " << t_correct / t_total;
+  std::cout << "Test Classifier " << t_correct << "," << t_total << ","
+            << t_correct / t_total;
   for (size_t k = 0; k < correct.size(); k++) {
     std::cout << "," << correct[k] / total[k];
   }
