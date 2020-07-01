@@ -32,7 +32,6 @@ Array2D Layer::relu_forward(Array2D Z) { return Z.apply(relu); }
  */
 Array2D Layer::affine_reverse(Array2D dZ) {
   /* dA Calculation */
-  // dA = dW * dZ;
   for (size_t i = 0; i < dA.height; i++) {
     for (size_t k = 0; k < dA.width; k++) {
       dA.data[i][k] = 0.0;

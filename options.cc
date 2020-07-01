@@ -17,6 +17,7 @@ bool Options::parse(int argc, char **argv) {
     ("input_csv_test,ts", po::value<std::string>(&input_csv_test), "Input testing CSV file")
     ("output_folder,o", po::value<std::string>(&output_folder), "Output folder to store weights")
     ("log_folder,l", po::value<std::string>(&log_folder), "Log folder to store accuracy ")
+    ("ntrain", po::value<bool>(&ntrain), "If true, skip training phase")
     ("perceptron", po::value<bool>(&perceptron), "If true, use perceptron, if false use DNN")
     ("events,e", po::value<int>(&events), "Integer number of events")
     ("epochs", po::value<int>(&epochs), "Integer number of epochs")
@@ -26,11 +27,20 @@ bool Options::parse(int argc, char **argv) {
     ("hidden_layers", po::value<int>(&hidden_layers), "DNN Num Hidden Layers")
     ("hidden_layer_dimension", po::value<int>(&hidden_layer_dimension), "DNN Hidden Layer Size")
   ;
+
+  po::options_description serial("Serialization Options");
+  serial.add_options()
+    ("serial_fname", po::value<std::string>(&serial_fname), "Write Perceptron or DNN to file")
+    ("serial_create", po::value<bool>(&serial_create), "Serial Create")
+    ("serial_restore", po::value<bool>(&serial_restore), "Serial Resotre")
+  ;
+
   // clang-format on
 
   po::options_description all_options;
   all_options.add(io);
   all_options.add(desc);
+  all_options.add(serial);
 
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, all_options), vm);

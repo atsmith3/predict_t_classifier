@@ -4,6 +4,11 @@
 #include "array.h"
 
 #include <algorithm>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstdint>
 #include <vector>
 
@@ -15,6 +20,8 @@ class Perceptron {
   double eta;
 
 public:
+  Perceptron() { eta = 0.0; };
+
   /**
    * Constructor
    * Create a signature perceptron
@@ -38,12 +45,22 @@ public:
    * @param correct
    */
   void train(Array2D input, bool correct);
+
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    if (version >= 0) {
+      ar &w;
+      ar &eta;
+    }
+  }
 };
 
 class Classifier {
   std::vector<Perceptron> actions;
 
 public:
+  Classifier(){};
+
   /**
    * Constructor
    * Create a signature classifier
@@ -74,6 +91,13 @@ public:
   bool train(Array2D input, Array2D label);
 
   int get_actions() const { return (int)actions.size(); }
+
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    if (version >= 0) {
+      ar &actions;
+    }
+  }
 };
 
 #endif // __PERCEPTRON_H__

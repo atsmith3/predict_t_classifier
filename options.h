@@ -22,6 +22,10 @@ public:
   int minibatch_size = 128;
   int hidden_layers = 1;
   int hidden_layer_dimension = 32;
+  bool serial_create = false;
+  bool serial_restore = false;
+  bool ntrain = false;
+  std::string serial_fname = "classifier.txt";
   // Get Options from Command Lineinpu
   bool parse(int argc, char **argv);
 }; // class Options

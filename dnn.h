@@ -4,6 +4,11 @@
 #include "layer.h"
 
 #include <algorithm>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 #include <cstdint>
 #include <vector>
 
@@ -70,6 +75,19 @@ public:
   }
 
   int get_actions() const { return (int)actions; }
+
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    if (version >= 0) {
+      ar &input;
+      ar &hidden;
+      ar &output;
+      ar &features;
+      ar &actions;
+      ar &hidden_dim;
+      ar &hidden_layers;
+    }
+  }
 };
 
 #endif // __DNN_H__
