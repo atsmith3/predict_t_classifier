@@ -2,28 +2,122 @@
 
 #include "array.h"
 #include "func.h"
+#include "perceptron.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <stdio.h>
-#include <stdlib.h>
+#include <sstream>   // std::stringstream
+#include <stdexcept> // std::runtime_error
+#include <string>
+#include <thread>
+#include <unistd.h>
 #include <vector>
+
+/**
+ * Read Data
+ * Read the test or training data from a CSV File, and apply a
+ * preprocessing function to the data.
+ *
+ * The data is always expected to be:
+ *    Label, PC, Event0, Event1, Event2, ...
+ *
+ * @param fname File of input data
+ * @param features The number of features in the dataset
+ * @param process
+ * @return Dataset
+ */
+Array2D read_data(std::string fname, size_t features, preprocess_t process) {
+  std::cout << "Reading vectors from " << fname << "\n";
+  Array2D ret;
+  std::string file_line;
+  std::string col_value;
+  std::ifstream infile(fname);
+
+  if (!infile.is_open()) {
+    throw std::runtime_error("Could not open file");
+  }
+
+  size_t i = 0;
+  while (infile.good()) {
+    getline(infile, file_line);
+    std::stringstream ss(file_line);
+
+    // checking if its an empty line
+    if (!(std::getline(ss, col_value, ','))) {
+      continue;
+    }
+
+    // Create a New Entry:
+    ret.data.push_back(std::vector<double>());
+    ret.data[i].push_back((double)std::stoi(col_value));
+
+    size_t count = 0;
+    while (std::getline(ss, col_value, ',')) {
+      if (count >= features) {
+        break;
+      }
+      count++;
+      ret.data[i].push_back((double)std::stoi(col_value));
+    }
+    i++;
+    if (count != features) {
+      throw std::runtime_error(
+          "Number of Events specified is less than the number that exist");
+    }
+  }
+  infile.close();
+  if (ret.data.size()) {
+    ret.width = ret.data[0].size();
+  }
+  ret.height = ret.data.size();
+
+  Array2D temp;
+
+  // Apply input formatting
+  switch (process) {
+    case RAW: {
+      // Do nothing
+      break;
+    }
+    case STANDARDIZE: {
+      temp = ret.get_subset(ret.height, ret.width - 1, 0, 1);
+      temp = standardize(temp);
+      ret.apply_subset(temp, 0, 1);
+      break;
+    }
+    case NORMALIZE: {
+      temp = ret.get_subset(ret.height, ret.width - 1, 0, 1);
+      temp = normalize(temp);
+      ret.apply_subset(temp, 0, 1);
+      break;
+    }
+    default: {
+      break;
+    }
+  }
+
+  std::cout << "Read " << i << " vectors from file: " << fname << "\n";
+  return ret;
+}
 
 /**
  * train_dnn
  * Minibatch Train the DNN
  * @param dnn The network to train
- * @param train_data The path to the training dataset
+ * @param training_data
  * @param epochs The number of training intervals
  * @param minibatch_size The size of the minibatch, 1 = sgd
  */
 void train_dnn(DNN &dnn,
-               std::string train_data,
-               int epochs,
-               int minibatch_size) {
+               Array2D &train_data,
+               size_t epochs,
+               size_t minibatch_size) {
   std::cout << dnn << " " << train_data << " " << epochs << " "
             << minibatch_size << std::endl;
 }
@@ -32,10 +126,88 @@ void train_dnn(DNN &dnn,
  * train_dnn
  * Test the DNN
  * @param dnn The network to test
- * @param test_data The path to the test dataset
+ * @param test_data, Array of Test Data
  */
-void test_dnn(DNN &dnn, std::string test_data) {
+void test_dnn(DNN &dnn, Array2D &test_data) {
   std::cout << dnn << " " << test_data << std::endl;
+}
+
+/**
+ * train_classifer
+ * Train the Perceptron Classifier
+ * @param a Classifier to train
+ * @param training_data
+ * @param epochs The number of training intervals
+ */
+void train_classifier(Classifier &a, Array2D &train_data, size_t epochs) {
+  Array2D input;
+  Array2D label;
+  double correct = 0;
+  double total = 0;
+  double correct_true = 0;
+  double correct_false = 0;
+  double total_true = 0;
+  double total_false = 0;
+  std::cout << "Epoch #, Total Accuracy, True Accuracy, False Accuracy\n";
+  for (size_t i = 0; i < epochs; i++) {
+    train_data.apply_shuffle();
+    input =
+        train_data.get_subset(train_data.height, train_data.width - 1, 0, 1);
+    label = train_data.get_subset(train_data.height, 1, 0, 0);
+    correct = 0;
+    total = 0;
+    correct_true = 0;
+    correct_false = 0;
+    total_true = 0;
+    total_false = 0;
+    for (size_t j = 0; j < train_data.height; j++) {
+      if (a.train(input.get_subset(1, input.width, j, 0),
+                  label.get_subset(1, label.width, j, 0))) {
+        correct += 1.0;
+        if ((int)label.get_subset(1, label.width, j, 0).data[0][0] == 1) {
+          correct_true += 1;
+        } else {
+          correct_false += 1;
+        }
+      }
+      total += 1.0;
+      if ((int)label.get_subset(1, label.width, j, 0).data[0][0] == 1) {
+        total_true += 1;
+      } else {
+        total_false += 1;
+      }
+    }
+    std::cout << i << "," << correct / total << "," << correct_true / total_true
+              << "," << correct_false / total_false << "\n";
+  }
+  std::cout << "Train Classifier " << correct / total << "\n";
+}
+
+/**
+ * test classifier
+ * test the perceptron classifer on the input data
+ * @param a Classifier to train
+ * @param training_data
+ * @param epochs The number of training intervals
+ */
+void test_classifier(Classifier &a, Array2D &test_data) {
+  Array2D input;
+  Array2D label;
+  double correct = 0;
+  double total = 0;
+  input = test_data.get_subset(test_data.height, test_data.width - 1, 0, 1);
+  label = test_data.get_subset(test_data.height, 1, 0, 0);
+  correct = 0;
+  total = 0;
+  int action = 0;
+  for (size_t j = 0; j < test_data.height; j++) {
+    action = a.eval(input.get_subset(1, input.width, j, 0));
+    if (action == label.get_subset(1, label.width, j, 0).data[0][0]) {
+      correct += 1.0;
+    }
+    total += 1.0;
+  }
+  std::cout << "Test Classifier " << correct / total << "\n";
 }
 
 /**
@@ -44,12 +216,14 @@ void test_dnn(DNN &dnn, std::string test_data) {
  */
 void dnn_unit_test() {
 #ifdef DEBUG
+  int i = 0;
 
   /*
    * Test the Default Contructor of Array2D
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 1: Create Array2D\n";
+  std::cout << "Test " << i << ": Create Array2D\n";
   std::cout << "-----------------------------------------------------\n";
   Array2D A = Array2D();
   std::cout << A << "\n";
@@ -58,8 +232,9 @@ void dnn_unit_test() {
   /*
    * Test the NxM constructor & random Init
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 2: Create Array2D; Height=4, Width=6\n";
+  std::cout << "Test " << i << ": Create Array2D; Height=4, Width=6\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(4, 6);
   std::cout << A << "\n";
@@ -68,8 +243,9 @@ void dnn_unit_test() {
   /*
    * Test Multiplication of Array and Scalar
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 3: Multiply Array2D*double\n";
+  std::cout << "Test " << i << ": Multiply Array2D*double\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(4, 4, 1.0);
   Array2D B = A * 100.0;
@@ -80,8 +256,9 @@ void dnn_unit_test() {
   /*
    * Test Multiplication of Array and Array
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 4: Multiply Array2D 2x2, 2x2\n";
+  std::cout << "Test " << i << ": Multiply Array2D 2x2, 2x2\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(2, 2, 1.0);
   B = Array2D(2, 2, 1.0);
@@ -94,8 +271,9 @@ void dnn_unit_test() {
   /*
    * Test Multiplication of Array and Array
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 5: Multiply Array2D 2x5, 5x2\n";
+  std::cout << "Test " << i << ": Multiply Array2D 2x5, 5x2\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(2, 5, 1.0);
   B = Array2D(5, 2, 1.0);
@@ -106,14 +284,39 @@ void dnn_unit_test() {
   std::cout << "\n\n";
 
   /*
+   * Test identity matrix
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": Identity 5x5\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(5, 5, 0.0, true);
+  std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test Transpose of Array and Array
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": Transpose Array2D 2x5\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(2, 5, 1.0);
+  B = A.transpose();
+  std::cout << A << "\n";
+  std::cout << B << "\n";
+  std::cout << "\n\n";
+
+  /*
    * Test Addition of Array and Bias Vector
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 6: Addition Array2D 2x5, 5x1\n";
+  std::cout << "Test " << i << ": Add bias 2x5, 5x1\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(2, 5, 1.0);
   B = Array2D(5, 1, 1.0);
-  C = A + B;
+  C = A.add_bias(B);
   std::cout << A << "\n";
   std::cout << B << "\n";
   std::cout << C << "\n";
@@ -122,8 +325,9 @@ void dnn_unit_test() {
   /*
    * Test Subtraction of Array and Array
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 7: Subtract Array2D 8x8, 8x8\n";
+  std::cout << "Test " << i << ": Subtract Array2D 8x8, 8x8\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 8, 1.0);
   B = A;
@@ -134,10 +338,26 @@ void dnn_unit_test() {
   std::cout << "\n\n";
 
   /*
+   * Test Addition of Array and Array
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": Subtract Array2D 8x8, 8x8\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(8, 8, 1.0);
+  B = A;
+  C = A + B;
+  std::cout << A << "\n";
+  std::cout << B << "\n";
+  std::cout << C << "\n";
+  std::cout << "\n\n";
+
+  /*
    * Test ReLU Function
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 8: Array2D Apply relu()\n";
+  std::cout << "Test " << i << ": Array2D Apply relu()\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(4, 4, 10.0);
   B = A.apply(relu);
@@ -148,8 +368,9 @@ void dnn_unit_test() {
   /*
    * Test Argmax()
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 9: argmax(Array2D)\n";
+  std::cout << "Test " << i << ": argmax(Array2D)\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(1, 10, 10.0);
   std::cout << A << "\n";
@@ -159,8 +380,9 @@ void dnn_unit_test() {
   /*
    * Test normalize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 10: normalize(Array2D) 1x10\n";
+  std::cout << "Test " << i << ": normalize(Array2D) 1x10\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(1, 10, 10.0);
   std::cout << A << "\n";
@@ -170,8 +392,9 @@ void dnn_unit_test() {
   /*
    * Test normalize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 11: normalize(Array2D) 10x1\n";
+  std::cout << "Test " << i << ": normalize(Array2D) 10x1\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(10, 1, 10.0);
   std::cout << A << "\n";
@@ -181,8 +404,9 @@ void dnn_unit_test() {
   /*
    * Test normalize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 12: normalize(Array2D) 8x8\n";
+  std::cout << "Test " << i << ": normalize(Array2D) 8x8\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 8, 10.0);
   std::cout << A << "\n";
@@ -192,8 +416,9 @@ void dnn_unit_test() {
   /*
    * Test standardize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 13: standardize(Array2D) 1x10\n";
+  std::cout << "Test " << i << ": standardize(Array2D) 1x10\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(1, 10, 10.0);
   std::cout << A << "\n";
@@ -203,8 +428,9 @@ void dnn_unit_test() {
   /*
    * Test standardize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 14: standardize(Array2D) 10x1\n";
+  std::cout << "Test " << i << ": standardize(Array2D) 10x1\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(10, 1, 10.0);
   std::cout << A << "\n";
@@ -214,8 +440,9 @@ void dnn_unit_test() {
   /*
    * Test standardize
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 15: standardize(Array2D) 8x8\n";
+  std::cout << "Test " << i << ": standardize(Array2D) 8x8\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 8, 10.0);
   std::cout << A << "\n";
@@ -225,8 +452,9 @@ void dnn_unit_test() {
   /*
    * Test get_subset
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 16: get_subset 8x8 -> 8x7\n";
+  std::cout << "Test " << i << ": get_subset 8x8 -> 8x7\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 8, 10.0);
   B = A.get_subset(8, 7, 0, 1);
@@ -237,8 +465,9 @@ void dnn_unit_test() {
   /*
    * Test get_subset
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 17: get_subset 8x8 -> 8x1\n";
+  std::cout << "Test " << i << ": get_subset 8x8 -> 8x1\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 8, 10.0);
   B = A.get_subset(8, 1, 0, 0);
@@ -249,13 +478,85 @@ void dnn_unit_test() {
   /*
    * Test shuffle
    */
+  i++;
   std::cout << "-----------------------------------------------------\n";
-  std::cout << "Test 18: shuffle 8x4\n";
+  std::cout << "Test " << i << ": shuffle 8x4\n";
   std::cout << "-----------------------------------------------------\n";
   A = Array2D(8, 4, 10.0);
   std::cout << A << "\n";
-  A.shuffle();
+  A.apply_shuffle();
   std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test apply subset
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": apply_subset 8x4\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = Array2D(8, 4, 10.0);
+  B = A.get_subset(8, 3, 0, 1);
+  B = normalize(B);
+  std::cout << A << "\n";
+  A.apply_subset(B, 0, 1);
+  std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test read_file, raw
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": read_file, RAW\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = read_data("./unit_test/input.csv", 4, RAW);
+  std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test read_file, STANDARDIZE
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": read_file, STANDARDIZE\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = read_data("./unit_test/input.csv", 4, STANDARDIZE);
+  std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test read_file, NORMALIZE
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": read_file, NORMALIZE\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = read_data("./unit_test/input.csv", 4, NORMALIZE);
+  std::cout << A << "\n";
+  std::cout << "\n\n";
+
+  /*
+   * Test Classifer Train
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": classifier train\n";
+  std::cout << "-----------------------------------------------------\n";
+  A = read_data("./unit_test/input.csv", 17, NORMALIZE);
+  std::cout << A << "\n";
+  Classifier classifier = Classifier(2, A.width - 1);
+  train_classifier(classifier, A, 1000);
+  std::cout << "\n\n";
+
+  /*
+   * Test Classifer Test
+   */
+  i++;
+  std::cout << "-----------------------------------------------------\n";
+  std::cout << "Test " << i << ": classifier test\n";
+  std::cout << "-----------------------------------------------------\n";
+  test_classifier(classifier, A);
   std::cout << "\n\n";
 #endif
 }

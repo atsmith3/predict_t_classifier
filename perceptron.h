@@ -1,14 +1,15 @@
 #ifndef __PERCEPTRON_H__
 #define __PERCEPTRON_H__
 
+#include "array.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <vector>
 
 class Perceptron {
   /** weights */
-  std::vector<double> w;
-  double pc_w;
+  Array2D w;
 
   /** Eta; training rate */
   double eta;
@@ -21,24 +22,22 @@ public:
    * @param init_range range for random init
    * @param eta training rate
    */
-  Perceptron(size_t features, int init_range = 10, double eta = 100.0);
+  Perceptron(size_t features, int init_range = 10, double eta = 0.1);
 
   /**
    * eval
    * Evaluate the perceptron
-   * @param pc The input anchor PC
-   * @param signature The input event signature
+   * @param input
    * @return confidence
    */
-  double eval(uint64_t pc, std::vector<uint8_t> signature) const;
+  double eval(Array2D input) const;
 
   /**
    * train
-   * Evaluate the perceptron and train
-   * @param pc The input anchor PC
-   * @param signature The input event signature
+   * @param input
+   * @param correct
    */
-  void train(uint64_t pc, std::vector<uint8_t> signature, bool correct);
+  void train(Array2D input, bool correct);
 };
 
 class Classifier {
@@ -56,25 +55,23 @@ public:
   Classifier(size_t actions,
              size_t features,
              int init_range = 10,
-             double eta = 1.5);
+             double eta = 0.1);
 
   /**
    * eval
    * Evaluate the classifier
-   * @param pc The input anchor PC
-   * @param signature The input event signature
    * @return action taken
    */
-  int eval(uint64_t pc, std::vector<uint8_t> signature);
+  int eval(Array2D input);
 
   /**
    * train
    * Evaluate the classifier and train
-   * @param pc The input anchor PC
-   * @param signature The input event signature
-   * @param action Correct action to take
+   * @param input array
+   * @param label
+   * @return correct or incorrect
    */
-  void train(uint64_t pc, std::vector<uint8_t> signature, int action);
+  bool train(Array2D input, Array2D label);
 };
 
 #endif // __PERCEPTRON_H__

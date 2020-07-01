@@ -25,13 +25,14 @@ parser.add_argument(
     default=2,
     help="Number of actions to take, MINIMUM 2, MAXIMUM 10")
 parser.add_argument('--threads', type=int, default=2, help="Number of threads")
+parser.add_argument('--pc', type=bool, default=False, help="Include PC")
 
 args = parser.parse_args()
 input_paths = args.input
 output_path = args.output
 num_events = args.events
 num_actions = args.actions
-num_threads = args.threads
+num_threads = 1
 
 
 def parse_data(InputQueue, OutputQueue_training, OutputQueue_test):
@@ -69,11 +70,18 @@ def parse_data(InputQueue, OutputQueue_training, OutputQueue_test):
     coloumn_names.insert(0, 'throttle')
     data = data[coloumn_names]
 
-    data.drop([0, 1], axis=1,
-              inplace=True)  #Dropping the voltage and current values
-    data.drop(
-        range(3 + num_events, num_columns), axis=1,
-        inplace=True)  #Dropping all the excess event values
+    print(args.pc)
+    if (not args.pc):
+      print("Pc Not Specified")
+      data.drop([0, 1, 2], axis=1,
+                inplace=True)  #Dropping the voltage and current values
+
+    else:
+      data.drop([0, 1], axis=1,
+                inplace=True)  #Dropping the voltage and current values
+      data.drop(
+          range(3 + num_events, num_columns), axis=1,
+          inplace=True)  #Dropping all the excess event values
 
     train, test = train_test_split(data, test_size=0.1)
 

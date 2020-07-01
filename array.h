@@ -16,14 +16,10 @@ public:
   size_t height;
 
   Array2D();
-  Array2D(size_t height, size_t width, double init = 0.0);
-
-  /**
-   * operator+(const Array& other)
-   * Add Array and bias
-   * Return Array
-   */
-  Array2D operator+(const Array2D &other);
+  Array2D(size_t height,
+          size_t width,
+          double init = 0.0,
+          bool identity = false);
 
   /**
    * operator*(const Array2D& other)
@@ -40,11 +36,34 @@ public:
   Array2D operator*(const double &other);
 
   /**
+   * operator+(const Array& other)
+   * Add Array and bias
+   * Return Array
+   */
+  Array2D add_bias(const Array2D &bias);
+
+  /**
+   * operator+(const Array& other)
+   * Add two arrays elementwise, must have same
+   * dimensions
+   * Return Array
+   */
+  Array2D operator+(const Array2D &other);
+
+  /**
    * operator-(const Array& other)
-   * subtract two arrays for gradient descent
+   * Subtract two arrays elementwise, must have same
+   * dimensions
    * Return Array
    */
   Array2D operator-(const Array2D &other);
+
+  /**
+   * transpose
+   * multiplies the array by the identity matrix
+   * @return transpose
+   */
+  Array2D transpose();
 
   /**
    * apply
@@ -55,7 +74,8 @@ public:
 
   /**
    * get_subset
-   * return an array of dimensions y, x starting at offset y_o, x_o
+   * return an array of dimensions y, x starting at
+   * offset y_o, x_o
    * @param y height of new array
    * @param x width of new array
    * @param y_o y offset of new array
@@ -65,10 +85,21 @@ public:
   Array2D get_subset(size_t y, size_t x, size_t y_o, size_t x_o);
 
   /**
-   * shuffle
+   * apply_subset
+   * apply and array of dimensions y, x starting at
+   * offset y_o, x_o
+   * @param array Array to apply
+   * @param y_o y offset of new array
+   * @param x_o x offset of new array
+   * @return array
+   */
+  void apply_subset(const Array2D &arr, size_t y_o, size_t x_o);
+
+  /**
+   * apply_shuffle
    * randomize the array, apply locally
    */
-  void shuffle();
+  void apply_shuffle();
 
   /**
    * operator<<

@@ -35,7 +35,7 @@ print_info "#                                                       #"
 print_info "#########################################################"
 
 #State these before running the script
-export NUM_EVENTS=16
+export NUM_EVENTS=256
 export NUM_ACTIONS=2
 
 export ROOT_DIR="$PWD"
@@ -69,3 +69,4 @@ echo ""
   --events=$NUM_EVENTS \
   --actions=$NUM_ACTIONS \
   --threads=16
+#  --pc=False

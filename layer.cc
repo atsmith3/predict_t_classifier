@@ -12,7 +12,7 @@
  * @return Z
  */
 Array2D Layer::affine_forward(Array2D A) {
-  Z = (A * W) + b;
+  Z = (A * W).add_bias(b);
   return Z;
 }
 
