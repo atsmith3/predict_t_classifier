@@ -73,9 +73,7 @@ public:
    */
   bool train(Array2D input, Array2D label);
 
-  int get_actions() const {
-    return (int)actions.size();
-  }
+  int get_actions() const { return (int)actions.size(); }
 };
 
 #endif // __PERCEPTRON_H__

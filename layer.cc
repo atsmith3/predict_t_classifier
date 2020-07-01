@@ -32,10 +32,25 @@ Array2D Layer::relu_forward(Array2D Z) { return Z.apply(relu); }
  */
 Array2D Layer::affine_reverse(Array2D dZ) {
   /* dA Calculation */
-  dA = dZ * dW;
+  // dA = dW * dZ;
+  for (size_t i = 0; i < dA.height; i++) {
+    for (size_t k = 0; k < dA.width; k++) {
+      dA.data[i][k] = 0.0;
+      for (size_t j = 0; j < dZ.width; j++) {
+        dA.data[i][k] += dZ.data[i][j] * dW.data[k][j];
+      }
+    }
+  }
 
   /* dW calculation */
-  dW = dZ * A;
+  for (size_t k = 0; k < dW.height; k++) {
+    for (size_t j = 0; j < dW.width; j++) {
+      dW.data[k][j] = 0.0;
+      for (size_t i = 0; i < A.height; i++) {
+        dW.data[k][j] += dZ.data[i][j] * A.data[i][k];
+      }
+    }
+  }
 
   /* db calculation */
   for (size_t j = 0; j < dZ.width; j++) {
@@ -78,7 +93,7 @@ Array2D Layer::gd(Array2D X, Array2D dX) { return X - (dX * eta); }
 Layer::Layer(
     size_t height, size_t width, double eta, double init, bool last_layer) {
   W = Array2D(height, width, init);
-  b = Array2D(height, 1, init);
+  b = Array2D(width, 1, init);
   this->eta = eta;
   this->last_layer = last_layer;
 }
@@ -86,6 +101,7 @@ Layer::Layer(
 Array2D Layer::forward(Array2D A) {
   // Cache
   dA = A;
+  this->A = A;
   dW = W;
   db = b;
 

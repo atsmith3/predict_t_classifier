@@ -17,26 +17,22 @@ from sklearn.model_selection import train_test_split
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    '--infile',
-    type=str,
-    default="",
-    help="Input file to convert")
+    '--infile', type=str, default="", help="Input file to convert")
 parser.add_argument(
-    '--outfile',
-    type=str,
-    default="",
-    help="Output file to write to")
-parser.add_argument('--feature_dim', type=int, default=32, help="Feature Dimension")
+    '--outfile', type=str, default="", help="Output file to write to")
+parser.add_argument(
+    '--feature_dim', type=int, default=32, help="Feature Dimension")
 args = parser.parse_args()
 
-feature_y_dim=args.feature_dim
+feature_y_dim = args.feature_dim
 
 converted_data = []
 with open(args.infile, "r") as infile:
   vect = []
   for line in infile.readlines():
-    vect = vect + line.strip().replace("0", "0 ").replace("1", "1 ").strip().split(" ")
-    if(len(line.strip()) == 1):
+    vect = vect + line.strip().replace("0", "0 ").replace(
+        "1", "1 ").strip().split(" ")
+    if (len(line.strip()) == 1):
       # New input vector
       # Move the label to the front of the list
       vect = vect[-1:] + vect[:-1]
@@ -45,5 +41,4 @@ with open(args.infile, "r") as infile:
 
 with open(args.outfile, "w") as ofile:
   for line in converted_data:
-    ofile.write(line+"\n")
-
+    ofile.write(line + "\n")

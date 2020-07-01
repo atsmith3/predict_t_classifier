@@ -9,20 +9,24 @@ int main(int argc, char **argv) {
     return 1;
   }
 
-  //dnn_unit_test();
-  //return 1;
+  // dnn_unit_test();
+  // return 1;
 
   // std::cout << std::setprecision(0);
   // std::cout << std::fixed;
 
-  bool classifier = true;
+  bool classifier = false;
 
   /** Classifier(actions, signature_len, init_val, eta */
   Classifier a = Classifier(opt.actions, opt.events, opt.eta, 0.1);
-  DNN dnn = DNN(
-      opt.events, opt.actions, opt.hidden_layer_dimension, opt.hidden_layers, opt.eta, 10.0);
+  DNN dnn = DNN(opt.events,
+                opt.actions,
+                opt.hidden_layer_dimension,
+                opt.hidden_layers,
+                opt.eta,
+                0.01);
 
-  Array2D input_data = read_data(opt.input_csv_train, opt.events, RAW);
+  Array2D input_data = read_data(opt.input_csv_train, opt.events, STANDARDIZE);
 
   /** Train */
   if (classifier) {
