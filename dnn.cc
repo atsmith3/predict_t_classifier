@@ -27,6 +27,10 @@ DNN::DNN(size_t features,
     hidden.push_back(Layer(hidden_dim, hidden_dim, eta, init));
   }
   output = Layer(hidden_dim, actions, eta, init, true);
+  this->features = features;
+  this->actions = actions;
+  this->hidden_dim = hidden_dim;
+  this->hidden_layers = hidden_layers;
 }
 
 /**
@@ -66,8 +70,8 @@ double DNN::train(Array2D batch, Array2D actions) {
   dF = cross_entropy(F, actions);
 
   dA = output.reverse(dF);
-  for (size_t i = hidden.size() - 1; i >= 0; i--) {
-    dA = hidden[i].reverse(dA);
+  for (size_t i = hidden.size(); i > 0; i--) {
+    dA = hidden[i - 1].reverse(dA);
   }
   input.reverse(dA);
   return l;

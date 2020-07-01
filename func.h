@@ -36,4 +36,20 @@ Array2D cross_entropy(const Array2D F, const Array2D y);
  */
 int argmax(const Array2D F);
 
+/**
+ * standardize
+ * Standardize the features in the array
+ * @param input
+ * @return standardized input
+ */
+Array2D standardize(const Array2D &input);
+
+/**
+ * normalize
+ * Normalize the features in the array
+ * @param input
+ * @return normalized input
+ */
+Array2D normalize(const Array2D &input);
+
 #endif // __FUNC_H__

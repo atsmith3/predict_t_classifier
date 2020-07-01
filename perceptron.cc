@@ -5,37 +5,19 @@
 #include <random>
 
 Perceptron::Perceptron(size_t features, int init_range, double eta) {
-  w.resize(features);
-  for (size_t i = 0; i < w.size(); i++) {
-    w[i] = random() % init_range;
-  }
-  pc_w = random() % init_range;
+  // Input vector is horizontal [1, features] weight vector needs to be
+  // [features, 1]
+  w = Array2D(features, 1, init_range);
   this->eta = eta;
 }
 
-double Perceptron::eval(uint64_t pc, std::vector<uint8_t> signature) const {
-  double accum = 0.0;
-  for (size_t i = 0; i < signature.size(); i++) {
-    accum += w[i] * (double)signature[i];
-  }
-  accum += pc_w * (double)pc;
-  return accum;
-}
+double Perceptron::eval(Array2D input) const { return (input * w).data[0][0]; }
 
-void Perceptron::train(uint64_t pc,
-                       std::vector<uint8_t> signature,
-                       bool correct) {
-  for (size_t i = 0; i < signature.size(); i++) {
-    if (correct) {
-      w[i] += (double)signature[i] * eta;
-    } else {
-      w[i] -= (double)signature[i] * eta;
-    }
-  }
+void Perceptron::train(Array2D input, bool correct) {
   if (correct) {
-    pc_w += (double)pc * eta;
+    w = w + (input.transpose() * eta);
   } else {
-    pc_w -= (double)pc * eta;
+    w = w - (input.transpose() * eta);
   }
 }
 
@@ -46,23 +28,25 @@ Classifier::Classifier(size_t actions,
   this->actions.resize(actions, Perceptron(features, init_range, eta));
 }
 
-int Classifier::eval(uint64_t pc, std::vector<uint8_t> signature) {
+int Classifier::eval(Array2D input) {
   std::vector<double> confidence;
 
   for (size_t i = 0; i < actions.size(); i++) {
-    confidence.push_back(actions[i].eval(pc, signature));
+    confidence.push_back(actions[i].eval(input));
   }
 
   auto result = std::max_element(confidence.begin(), confidence.end());
   return std::distance(confidence.begin(), result);
 }
 
-void Classifier::train(uint64_t pc,
-                       std::vector<uint8_t> signature,
-                       int action) {
-  int predicted = eval(pc, signature);
+bool Classifier::train(Array2D input, Array2D label) {
+  int predicted = eval(input);
+  int action = (int)label.data[0][0];
+  bool ret = true;
   if (predicted != action) {
-    actions[predicted].train(pc, signature, false);
+    ret = false;
+    actions[predicted].train(input, false);
+    actions[action].train(input, true);
   }
-  actions[action].train(pc, signature, true);
+  return ret;
 }

@@ -12,6 +12,11 @@ class DNN {
   std::vector<Layer> hidden;
   Layer output;
 
+  size_t features;
+  size_t actions;
+  size_t hidden_dim;
+  size_t hidden_layers;
+
 public:
   /**
    * Constructor
@@ -63,6 +68,8 @@ public:
     os << dnn.output;
     return os;
   }
+
+  int get_actions() const { return (int)actions; }
 };
 
 #endif // __DNN_H__
