@@ -23,13 +23,30 @@ int main(int argc, char **argv) {
                 opt.eta,
                 0.01);
 
+  if (opt.serial_restore) {
+    /** Train */
+    if (classifier) {
+      restore_classifier(a, opt.serial_fname);
+    } else {
+      restore_dnn(dnn, opt.serial_fname);
+    }
+  }
+
   Array2D input_data = read_data(opt.input_csv_train, opt.events, STANDARDIZE);
 
   /** Train */
-  if (classifier) {
-    train_classifier(a, input_data, opt.epochs);
-  } else {
-    train_dnn(dnn, input_data, opt.epochs, opt.minibatch_size);
+  if (!opt.ntrain) {
+    if (classifier) {
+      train_classifier(a, input_data, opt.epochs);
+      if (opt.serial_create) {
+        save_classifier(a, opt.serial_fname);
+      }
+    } else {
+      train_dnn(dnn, input_data, opt.epochs, opt.minibatch_size);
+      if (opt.serial_create) {
+        save_dnn(dnn, opt.serial_fname);
+      }
+    }
   }
 
   input_data = read_data(opt.input_csv_test, opt.events, RAW);

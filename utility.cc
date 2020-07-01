@@ -5,6 +5,8 @@
 #include "perceptron.h"
 
 #include <algorithm>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -21,8 +23,8 @@
 
 /**
  * Read Data
- * Read the test or training data from a CSV File, and apply a
- * preprocessing function to the data.
+ * Read the test or training data from a CSV File, and apply a * preprocessing
+ * function to the data.
  *
  * The data is always expected to be:
  *    Label, Feature1, Feature2, Feature3, ...
@@ -290,6 +292,30 @@ void test_classifier(Classifier &a, Array2D &test_data) {
     std::cout << "," << correct[k] / total[k];
   }
   std::cout << "\n";
+}
+
+void save_classifier(Classifier &a, std::string fname) {
+  std::ofstream ofs(fname.c_str());
+  boost::archive::text_oarchive oa(ofs);
+  oa << a;
+}
+
+void save_dnn(DNN &a, std::string fname) {
+  std::ofstream ofs(fname.c_str());
+  boost::archive::text_oarchive oa(ofs);
+  oa << a;
+}
+
+void restore_classifier(Classifier &a, std::string fname) {
+  std::ifstream ifs(fname.c_str());
+  boost::archive::text_iarchive ia(ifs);
+  ia >> a;
+}
+
+void restore_dnn(DNN &a, std::string fname) {
+  std::ifstream ifs(fname.c_str());
+  boost::archive::text_iarchive ia(ifs);
+  ia >> a;
 }
 
 /**

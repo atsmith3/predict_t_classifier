@@ -1,6 +1,11 @@
 #ifndef __ARRAY2D_H__
 #define __ARRAY2D_H__
 
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/vector.hpp>
 #include <iostream>
 #include <ostream>
 #include <vector>
@@ -117,6 +122,15 @@ public:
       out << "\n";
     }
     return out;
+  }
+
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    if (version >= 0) {
+      ar &data;
+      ar &height;
+      ar &width;
+    }
   }
 };
 

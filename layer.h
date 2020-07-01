@@ -3,15 +3,19 @@
 
 #include "array.h"
 
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/utility.hpp>
 #include <iostream>
 #include <ostream>
 
 class Layer {
   Array2D W;
   Array2D b;
-  Array2D Z;
 
   // For Reverse
+  Array2D Z;
   Array2D dW;
   Array2D db;
   Array2D dZ;
@@ -91,6 +95,16 @@ public:
     os << "W:\n" << l.W << "b:\n" << l.b;
 #endif
     return os;
+  }
+
+  template <class Archive>
+  void serialize(Archive &ar, const unsigned int version) {
+    if (version >= 0) {
+      ar &W;
+      ar &b;
+      ar &eta;
+      ar &last_layer;
+    }
   }
 };
 

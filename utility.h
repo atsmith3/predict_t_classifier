@@ -67,6 +67,17 @@ void train_classifier(Classifier &a, Array2D &train_data, size_t epochs);
 void test_classifier(Classifier &a, Array2D &test_data);
 
 /**
+ * Boost Serialization of DNN and Classifier
+ */
+void save_classifier(Classifier &a, std::string fname);
+
+void save_dnn(DNN &a, std::string fname);
+
+void restore_classifier(Classifier &a, std::string fname);
+
+void restore_dnn(DNN &a, std::string fname);
+
+/**
  * dnn_unit_tests
  * Unit test some of the functionality of the Array2D and Layer Classes
  */
