@@ -46,7 +46,7 @@ bool Classifier::train(Array2D input, Array2D label) {
   if (predicted != action) {
     ret = false;
     actions[predicted].train(input, false);
+    actions[action].train(input, true);
   }
-  actions[action].train(input, true);
   return ret;
 }

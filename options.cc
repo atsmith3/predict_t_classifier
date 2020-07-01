@@ -19,6 +19,8 @@ bool Options::parse(int argc, char **argv) {
     ("log_folder,l", po::value<std::string>(&log_folder), "Log folder to store accuracy ")
     ("events,e", po::value<int>(&events), "Integer number of events")
     ("epochs", po::value<int>(&epochs), "Integer number of epochs")
+    ("actions", po::value<int>(&actions), "Integer number of actions")
+    ("eta", po::value<double>(&eta), "Training Rate")
     ("minibatch_size", po::value<int>(&minibatch_size), "DNN Batch Size")
     ("hidden_layers", po::value<int>(&hidden_layers), "DNN Num Hidden Layers")
     ("hidden_layer_dimension", po::value<int>(&hidden_layer_dimension), "DNN Hidden Layer Size")

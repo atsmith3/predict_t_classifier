@@ -16,6 +16,8 @@ public:
   std::string log_folder = "";
   int events = 256;
   int epochs = 10000;
+  int actions = 2;
+  double eta = 0.1;
   int minibatch_size = 128;
   int hidden_layers = 1;
   int hidden_layer_dimension = 32;

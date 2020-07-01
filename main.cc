@@ -18,11 +18,11 @@ int main(int argc, char **argv) {
   bool classifier = true;
 
   /** Classifier(actions, signature_len, init_val, eta */
-  Classifier a = Classifier(2, opt.events, 10, 0.1);
+  Classifier a = Classifier(opt.actions, opt.events, opt.eta, 0.1);
   DNN dnn = DNN(
-      opt.events, 2, opt.hidden_layer_dimension, opt.hidden_layers, 0.1, 10.0);
+      opt.events, opt.actions, opt.hidden_layer_dimension, opt.hidden_layers, opt.eta, 10.0);
 
-  Array2D input_data = read_data(opt.input_csv_train, opt.events, STANDARDIZE);
+  Array2D input_data = read_data(opt.input_csv_train, opt.events, RAW);
 
   /** Train */
   if (classifier) {

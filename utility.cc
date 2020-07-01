@@ -25,7 +25,7 @@
  * preprocessing function to the data.
  *
  * The data is always expected to be:
- *    Label, PC, Event0, Event1, Event2, ...
+ *    Label, Feature1, Feature2, Feature3, ...
  *
  * @param fname File of input data
  * @param features The number of features in the dataset
@@ -142,45 +142,43 @@ void test_dnn(DNN &dnn, Array2D &test_data) {
 void train_classifier(Classifier &a, Array2D &train_data, size_t epochs) {
   Array2D input;
   Array2D label;
-  double correct = 0;
-  double total = 0;
-  double correct_true = 0;
-  double correct_false = 0;
-  double total_true = 0;
-  double total_false = 0;
-  std::cout << "Epoch #, Total Accuracy, True Accuracy, False Accuracy\n";
+  int int_label;
+  double t_correct = 0;
+  double t_total = 0;
+  std::vector<double> correct;
+  std::vector<double> total;
+  correct.resize(a.get_actions(), 0.0);
+  total.resize(a.get_actions(), 0.0);
   for (size_t i = 0; i < epochs; i++) {
     train_data.apply_shuffle();
     input =
         train_data.get_subset(train_data.height, train_data.width - 1, 0, 1);
     label = train_data.get_subset(train_data.height, 1, 0, 0);
-    correct = 0;
-    total = 0;
-    correct_true = 0;
-    correct_false = 0;
-    total_true = 0;
-    total_false = 0;
+    t_correct=0.0;
+    t_total=0.0;
+    correct.resize(a.get_actions(), 0.0);
+    total.resize(a.get_actions(), 0.0);
     for (size_t j = 0; j < train_data.height; j++) {
+      int_label = (int)label.get_subset(1, label.width, j, 0).data[0][0];
       if (a.train(input.get_subset(1, input.width, j, 0),
                   label.get_subset(1, label.width, j, 0))) {
-        correct += 1.0;
-        if ((int)label.get_subset(1, label.width, j, 0).data[0][0] == 1) {
-          correct_true += 1;
-        } else {
-          correct_false += 1;
-        }
+        t_correct += 1.0;
+        correct[int_label]+=1.0;
       }
-      total += 1.0;
-      if ((int)label.get_subset(1, label.width, j, 0).data[0][0] == 1) {
-        total_true += 1;
-      } else {
-        total_false += 1;
-      }
+      total[int_label]+=1.0;
+      t_total += 1.0;
     }
-    std::cout << i << "," << correct / total << "," << correct_true / total_true
-              << "," << correct_false / total_false << "\n";
+    std::cout << i << "," << t_correct / t_total;
+    for(size_t k = 0; k < correct.size(); k++) {
+      std::cout << "," << correct[k]/total[k];
+    }
+    std::cout << "\n";
   }
-  std::cout << "Train Classifier " << correct / total << "\n";
+  std::cout << "Train Classifier " << t_correct / t_total;
+  for(size_t k = 0; k < correct.size(); k++) {
+    std::cout << "," << correct[k]/total[k];
+  }
+  std::cout << "\n";
 }
 
 /**
@@ -193,21 +191,31 @@ void train_classifier(Classifier &a, Array2D &train_data, size_t epochs) {
 void test_classifier(Classifier &a, Array2D &test_data) {
   Array2D input;
   Array2D label;
-  double correct = 0;
-  double total = 0;
-  input = test_data.get_subset(test_data.height, test_data.width - 1, 0, 1);
+  int int_label;
+  double t_correct = 0;
+  double t_total = 0;
+  std::vector<double> correct;
+  std::vector<double> total;
+  correct.resize(a.get_actions(), 0.0);
+  total.resize(a.get_actions(), 0.0);
+  input =
+      test_data.get_subset(test_data.height, test_data.width - 1, 0, 1);
   label = test_data.get_subset(test_data.height, 1, 0, 0);
-  correct = 0;
-  total = 0;
-  int action = 0;
   for (size_t j = 0; j < test_data.height; j++) {
-    action = a.eval(input.get_subset(1, input.width, j, 0));
-    if (action == label.get_subset(1, label.width, j, 0).data[0][0]) {
-      correct += 1.0;
+    int_label = (int)label.get_subset(1, label.width, j, 0).data[0][0];
+    if (a.train(input.get_subset(1, input.width, j, 0),
+                label.get_subset(1, label.width, j, 0))) {
+      t_correct += 1.0;
+      correct[int_label]+=1.0;
     }
-    total += 1.0;
+    total[int_label]+=1.0;
+    t_total += 1.0;
   }
-  std::cout << "Test Classifier " << correct / total << "\n";
+  std::cout << "Test Classifier " << t_correct / t_total;
+  for(size_t k = 0; k < correct.size(); k++) {
+    std::cout << "," << correct[k]/total[k];
+  }
+  std::cout << "\n";
 }
 
 /**
