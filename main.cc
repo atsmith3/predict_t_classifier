@@ -12,10 +12,7 @@ int main(int argc, char **argv) {
   // dnn_unit_test();
   // return 1;
 
-  // std::cout << std::setprecision(0);
-  // std::cout << std::fixed;
-
-  bool classifier = false;
+  bool classifier = opt.perceptron;
 
   /** Classifier(actions, signature_len, init_val, eta */
   Classifier a = Classifier(opt.actions, opt.events, opt.eta, 0.1);

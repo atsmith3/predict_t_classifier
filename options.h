@@ -14,6 +14,7 @@ public:
   std::string input_csv_test = "";
   std::string output_folder = "";
   std::string log_folder = "";
+  bool perceptron = true;
   int events = 256;
   int epochs = 10000;
   int actions = 2;
