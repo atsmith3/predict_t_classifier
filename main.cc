@@ -132,13 +132,13 @@ int main(int argc, char **argv) {
   //test_dnn(classifier, "test.csv");
 
   /** Classifier(actions, signature_len, init_val, eta */
-  Classifier a = Classifier(2, opt.number_events, 10, 10.0);
+  Classifier a = Classifier(opt.number_actions, opt.number_events, 10, 10.0);
 
   /** Train */
   train(a, opt.input_csv_train, opt.number_events);
 
   /** Test */
-  std::cout<<test(a, opt.input_csv_test, opt.number_events)<<std::endl;
+  std::cout<<opt.number_actions<<","<<opt.number_events<<","<<test(a, opt.input_csv_test, opt.number_events)<<std::endl;
   /** Serialize */
   return 0;
 }

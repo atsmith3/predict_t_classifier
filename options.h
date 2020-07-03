@@ -12,9 +12,11 @@ public:
   // IO Options
   std::string input_csv_train = "";
   std::string input_csv_test = "";
-  std::string output_folder = "";
-  std::string log_folder = "";
+  // std::string output_folder = "";
+  // std::string log_folder = "";
   int number_events;
+  int number_actions;
+
   // Get Options from Command Lineinpu
   bool parse(int argc, char **argv);
 }; // class Options
