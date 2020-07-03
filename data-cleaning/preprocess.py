@@ -14,6 +14,11 @@ parser.add_argument(
     default="",
     help="Path to folder with all the CSV files")
 parser.add_argument(
+    '--output',
+    type=str,
+    default="",
+    help="output_filename")
+parser.add_argument(
     '--actions',
     type=int,
     default=2,
@@ -93,8 +98,11 @@ def read_data(files):
   global minimal_core_di
 
   for f in files:
+    print(f)
     with open(f, "r") as infile:
-      for line in infile.readlines():
+      for ln, line in enumerate(infile):
+        if ln > 100000:
+          break
         pc = []
         event = []
         if("#" == line.strip()[0]):
@@ -457,5 +465,5 @@ print("After distribute_current: Lines= "+str(lines))
 lines = remove_duplicates_soft()
 print("After remove_duplicates_soft: Lines= "+str(lines))
 policy = assign_expert_policy(args.actions, maximal_core_di, minimal_core_di)
-write_data("output.txt")
-write_file("train.txt")
+#write_data("output.txt")
+write_file(args.output)
