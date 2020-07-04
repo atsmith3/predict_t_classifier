@@ -84,16 +84,19 @@ Array2D read_data(std::string fname, size_t features, preprocess_t process) {
   // Apply input formatting
   switch (process) {
     case RAW: {
+      std::cout << "Using Raw dataset";
       // Do nothing
       break;
     }
     case STANDARDIZE: {
+      std::cout << "Applying Standardization to input dataset";
       temp = ret.get_subset(ret.height, ret.width - 1, 0, 1);
       temp = standardize(temp);
       ret.apply_subset(temp, 0, 1);
       break;
     }
     case NORMALIZE: {
+      std::cout << "Applying Normalization to input dataset";
       temp = ret.get_subset(ret.height, ret.width - 1, 0, 1);
       temp = normalize(temp);
       ret.apply_subset(temp, 0, 1);

@@ -18,6 +18,7 @@ public:
   int events = 256;
   int epochs = 10000;
   int actions = 2;
+  std::string preprocess = "RAW";
   double eta = 0.1;
   int minibatch_size = 128;
   int hidden_layers = 1;

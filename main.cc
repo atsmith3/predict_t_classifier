@@ -31,8 +31,14 @@ int main(int argc, char **argv) {
       restore_dnn(dnn, opt.serial_fname);
     }
   }
-
-  Array2D input_data = read_data(opt.input_csv_train, opt.events, STANDARDIZE);
+  Array2D input_data;
+  if (opt.preprocess == "STANDARDIZE") {
+    input_data = read_data(opt.input_csv_train, opt.events, STANDARDIZE);
+  } else if (opt.preprocess == "NORMALIZE") {
+    input_data = read_data(opt.input_csv_train, opt.events, NORMALIZE);
+  } else {
+    input_data = read_data(opt.input_csv_train, opt.events, RAW);
+  }
 
   /** Train */
   if (!opt.ntrain) {
