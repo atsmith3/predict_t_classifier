@@ -20,13 +20,13 @@ python3 ./preprocess.py \
 --num-events=${EVENTS[$j]} \
 --actions=${ACTIONS[$k]} \
 ${FLAG[$l]} \
---output=$TN"
+--output=$TN.csv"
         python3 ./preprocess.py \
           --input=${DIRS[$i]} \
           --num-events=${EVENTS[$j]} \
           --actions=${ACTIONS[$k]} \
           ${FLAG[$l]} \
-          --output=$TN
+          --output=$TN.csv
       done
     done
   done
