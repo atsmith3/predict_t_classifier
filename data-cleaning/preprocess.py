@@ -6,6 +6,7 @@ import glob
 import math
 import threading, queue
 from sklearn.model_selection import train_test_split
+from sklearn import preprocessing
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -408,7 +409,7 @@ def remove_duplicates_hard():
 #  Write the training data
 #  @param output_file
 #  @return num_lines
-def write_file(output_file):
+def write_file(output_file, events, no_pc, a_pc):
   global sys_voltage
   global sys_current
   global core_runtime_curr
@@ -420,9 +421,17 @@ def write_file(output_file):
 
   with open(output_file, "w") as ofile:
     for i in range(len(core_runtime_curr_di)):
-      ofile.write(",".join( [str(policy[i])] + \
-          [str(history_dump_pc[i][k]) for k in range(len(history_dump_pc[i]))] + \
-          [str(history_dump_event[i][k]) for k in range(len(history_dump_event[i]))])+"\n")
+      if(no_pc):
+        ofile.write(",".join( [str(policy[i])] + \
+            [str(history_dump_event[i][k]) for k in range(events)])+"\n")
+      elif(a_pc):
+        ofile.write(",".join( [str(policy[i])] + \
+            [str(history_dump_pc[i][k]) for k in range(1)] + \
+            [str(history_dump_event[i][k]) for k in range(events)])+"\n")
+      else:
+        ofile.write(",".join( [str(policy[i])] + \
+            [str(history_dump_pc[i][k]) for k in range(events)] + \
+            [str(history_dump_event[i][k]) for k in range(events)])+"\n")
 
 
 def assign_expert_policy(actions, maximal, minimal, shunt=False):
@@ -459,17 +468,109 @@ def assign_expert_policy(actions, maximal, minimal, shunt=False):
       policy.append(0)
   return policy
 
+def standardize_pc():
+
+  global sys_voltage
+  global sys_current
+  global core_runtime_curr
+  global core_runtime_curr_di
+  global total_runtime_curr
+  global total_runtime_curr_di
+  global history_dump_pc
+  global history_dump_event
+
+  for i in range(len(history_dump_pc)):
+    npl = np.array(history_dump_pc[i])
+    #print(npl)
+    npl = preprocessing.scale(npl)
+    #print(npl)
+    history_dump_pc[i] = npl.tolist()
+
+def standardize_event():
+
+  global sys_voltage
+  global sys_current
+  global core_runtime_curr
+  global core_runtime_curr_di
+  global total_runtime_curr
+  global total_runtime_curr_di
+  global history_dump_pc
+  global history_dump_event
+
+  for i in range(len(history_dump_event)):
+    npl = np.array(history_dump_event[i])
+    #print(npl)
+    npl = preprocessing.scale(npl)
+    #print(npl)
+    history_dump_event[i] = npl.tolist()
+
+def rescale(n, r0, r1):
+  d0 = r0[1] - r0[0]
+  d1 = r1[1] - r1[0]
+  return d1 * (n - r0[0]) / d0 + r1[0]
+
+def rescale_pc():
+
+  global sys_voltage
+  global sys_current
+  global core_runtime_curr
+  global core_runtime_curr_di
+  global total_runtime_curr
+  global total_runtime_curr_di
+  global history_dump_pc
+  global history_dump_event
+
+  for i in range(len(history_dump_pc)):
+    for j in range(len(history_dump_pc[i])):
+      history_dump_pc[i][j] = rescale(history_dump_pc[i][j],[0.0,float(math.pow(2,64))],[0.0,1.0])
+
+def rescale_event():
+
+  global sys_voltage
+  global sys_current
+  global core_runtime_curr
+  global core_runtime_curr_di
+  global total_runtime_curr
+  global total_runtime_curr_di
+  global history_dump_pc
+  global history_dump_event
+
+  for i in range(len(history_dump_event)):
+    for j in range(len(history_dump_event[i])):
+      history_dump_event[i][j] = rescale(history_dump_event[i][j],[1.0,9.0],[0.0,1.0])
 
 files = get_files(args.input)
 print(files)
 lines = read_data(files)
 print("After read_data: Lines= " + str(lines))
-lines = trim(args.num_events, args.no_pc, args.anchor_pc)
+#lines = trim(args.num_events, args.no_pc, args.anchor_pc)
 print("After trim: Lines= " + str(lines))
 lines = distribute_current()
 print("After distribute_current: Lines= " + str(lines))
 lines = remove_duplicates_soft()
 print("After remove_duplicates_soft: Lines= " + str(lines))
-policy = assign_expert_policy(args.actions, maximal_core_di, minimal_core_di)
+policy = assign_expert_policy(2, maximal_core_di, minimal_core_di)
 #write_data("output.txt")
-write_file(args.output)
+#standardize_pc()
+#standardize_event()
+rescale_pc()
+rescale_event()
+write_file(args.output.split(".")[0]+"_8_2_npc.csv", 8, True, False)
+write_file(args.output.split(".")[0]+"_8_2_apc.csv", 8, False, True)
+write_file(args.output.split(".")[0]+"_8_2_all.csv", 8, False, False)
+write_file(args.output.split(".")[0]+"_16_2_npc.csv", 16, True, False)
+write_file(args.output.split(".")[0]+"_16_2_apc.csv", 16, False, True)
+write_file(args.output.split(".")[0]+"_16_2_all.csv", 16, False, False)
+write_file(args.output.split(".")[0]+"_64_2_npc.csv", 64, True, False)
+write_file(args.output.split(".")[0]+"_64_2_apc.csv", 64, False, True)
+write_file(args.output.split(".")[0]+"_64_2_all.csv", 64, False, False)
+policy = assign_expert_policy(8, maximal_core_di, minimal_core_di)
+write_file(args.output.split(".")[0]+"_8_8_npc.csv", 8, True, False)
+write_file(args.output.split(".")[0]+"_8_8_apc.csv", 8, False, True)
+write_file(args.output.split(".")[0]+"_8_8_all.csv", 8, False, False)
+write_file(args.output.split(".")[0]+"_16_8_npc.csv", 16, True, False)
+write_file(args.output.split(".")[0]+"_16_8_apc.csv", 16, False, True)
+write_file(args.output.split(".")[0]+"_16_8_all.csv", 16, False, False)
+write_file(args.output.split(".")[0]+"_64_8_npc.csv", 64, True, False)
+write_file(args.output.split(".")[0]+"_64_8_apc.csv", 64, False, True)
+write_file(args.output.split(".")[0]+"_64_8_all.csv", 64, False, False)

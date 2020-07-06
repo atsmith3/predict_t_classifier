@@ -57,7 +57,7 @@ Array2D read_data(std::string fname, size_t features, preprocess_t process) {
 
     // Create a New Entry:
     ret.data.push_back(std::vector<double>());
-    ret.data[i].push_back((double)std::stoi(col_value));
+    ret.data[i].push_back((double)std::stod(col_value));
 
     size_t count = 0;
     while (std::getline(ss, col_value, ',')) {
@@ -65,7 +65,7 @@ Array2D read_data(std::string fname, size_t features, preprocess_t process) {
         break;
       }
       count++;
-      ret.data[i].push_back((double)std::stoi(col_value));
+      ret.data[i].push_back((double)std::stod(col_value));
     }
     i++;
     if (count != features) {
